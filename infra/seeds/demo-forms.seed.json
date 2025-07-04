@@ -1,7 +1,6 @@
 {
   "forms": [
     {
-      "id": "550e8400-e29b-41d4-a716-446655440000",
       "slug": "demo-health-survey",
       "title": "Health Survey Demo",
       "description": "A demonstration health survey form with conditional logic",
@@ -29,12 +28,7 @@
       "label": "How would you rate your general health?",
       "type": "multiple_choice",
       "required": true,
-      "order": 1,
-      "settings_json": {
-        "multiple": false,
-        "randomize": false
-      },
-      "archived": false
+      "order": 1
     },
     {
       "id": "q2-550e8400-e29b-41d4-a716-446655440000",
@@ -43,11 +37,7 @@
       "label": "Please describe any specific health concerns you have:",
       "type": "long_text",
       "required": false,
-      "order": 2,
-      "settings_json": {
-        "placeholder": "Please provide details about your health concerns..."
-      },
-      "archived": false
+      "order": 2
     },
     {
       "id": "q3-550e8400-e29b-41d4-a716-446655440000",
@@ -56,14 +46,7 @@
       "label": "How satisfied are you with your current healthcare provider?",
       "type": "nps",
       "required": true,
-      "order": 3,
-      "settings_json": {
-        "min": 0,
-        "max": 10,
-        "min_label": "Not satisfied at all",
-        "max_label": "Extremely satisfied"
-      },
-      "archived": false
+      "order": 3
     },
     {
       "id": "q4-550e8400-e29b-41d4-a716-446655440000",
@@ -72,11 +55,7 @@
       "label": "Please provide your contact information:",
       "type": "short_text",
       "required": true,
-      "order": 4,
-      "settings_json": {
-        "placeholder": "Email address"
-      },
-      "archived": false
+      "order": 4
     }
   ],
   "question_choices": [
@@ -85,32 +64,28 @@
       "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
       "label": "Excellent",
       "value": "excellent",
-      "order": 1,
-      "is_default": false
+      "order": 1
     },
     {
       "id": "c2-550e8400-e29b-41d4-a716-446655440000",
       "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
       "label": "Good",
       "value": "good",
-      "order": 2,
-      "is_default": false
+      "order": 2
     },
     {
       "id": "c3-550e8400-e29b-41d4-a716-446655440000",
       "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
       "label": "Fair",
       "value": "fair",
-      "order": 3,
-      "is_default": false
+      "order": 3
     },
     {
       "id": "c4-550e8400-e29b-41d4-a716-446655440000",
       "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
       "label": "Poor",
       "value": "poor",
-      "order": 4,
-      "is_default": false
+      "order": 4
     }
   ],
   "branching_rules": [

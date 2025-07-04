@@ -60,50 +60,127 @@ async function seedData() {
         const seedData = JSON.parse(fs.readFileSync(seedFilePath, 'utf8'));
         console.log('📄 Seed data loaded successfully');
         
-        // Insert data in dependency order (no circular dependencies now)
-        console.log('📝 Inserting data in dependency order...');
+        // Insert data step by step, getting auto-generated IDs
+        console.log('📝 Inserting data with auto-generated IDs...');
         
-        // Insert collections in proper order
-        const collections = [
-            { name: 'forms', data: seedData.forms },
-            { name: 'form_versions', data: seedData.form_versions },
-            { name: 'questions', data: seedData.questions },
-            { name: 'question_choices', data: seedData.question_choices },
-            { name: 'branching_rules', data: seedData.branching_rules }
+        // Step 1: Create forms (without ID)
+        console.log('📝 Creating forms...');
+        const formData = seedData.forms[0]; // Just one form for demo
+        const createdForm = await directus.items('forms').createOne(formData);
+        console.log(`✅ Created form with ID: ${createdForm.id}`);
+        await sleep(2000);
+        
+        // Step 2: Create form_versions using the form ID
+        console.log('📝 Creating form version...');
+        const formVersionData = {
+            form_id: createdForm.id,
+            version: 1,
+            label: "Initial Version"
+        };
+        const createdFormVersion = await directus.items('form_versions').createOne(formVersionData);
+        console.log(`✅ Created form version with ID: ${createdFormVersion.id}`);
+        await sleep(2000);
+        
+        // Step 3: Create questions using the form_version ID
+        console.log('📝 Creating questions...');
+        const questionsData = [
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "general_health",
+                label: "How would you rate your general health?",
+                type: "multiple_choice",
+                required: true,
+                order: 1
+            },
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "health_concerns",
+                label: "Please describe any specific health concerns you have:",
+                type: "long_text",
+                required: false,
+                order: 2
+            },
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "satisfaction_rating",
+                label: "How satisfied are you with your current healthcare provider?",
+                type: "nps",
+                required: true,
+                order: 3
+            },
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "contact_info",
+                label: "Please provide your contact information:",
+                type: "short_text",
+                required: true,
+                order: 4
+            }
         ];
         
-        for (const collection of collections) {
-            if (collection.data && collection.data.length > 0) {
-                console.log(`📝 Inserting ${collection.data.length} items into ${collection.name}...`);
-                
-                try {
-                    // Use createMany for bulk insertion
-                    const result = await directus.items(collection.name).createMany(collection.data);
-                    console.log(`✅ Successfully inserted ${collection.data.length} items into ${collection.name}`);
-                } catch (error) {
-                    console.error(`❌ Failed to insert into ${collection.name}:`, error.message);
-                    
-                    // Try inserting items one by one for better error reporting
-                    console.log(`🔄 Trying individual insertion for ${collection.name}...`);
-                    let successCount = 0;
-                    
-                    for (const item of collection.data) {
-                        try {
-                            await directus.items(collection.name).createOne(item);
-                            successCount++;
-                        } catch (itemError) {
-                            console.error(`❌ Failed to insert item:`, JSON.stringify(item, null, 2));
-                            console.error(`❌ Error:`, itemError.message);
-                        }
-                    }
-                    
-                    console.log(`✅ Successfully inserted ${successCount}/${collection.data.length} items into ${collection.name}`);
+        const createdQuestions = [];
+        for (const questionData of questionsData) {
+            const createdQuestion = await directus.items('questions').createOne(questionData);
+            createdQuestions.push(createdQuestion);
+            console.log(`✅ Created question "${questionData.uid}" with ID: ${createdQuestion.id}`);
+            await sleep(500);
+        }
+        
+        // Step 4: Create question choices for the multiple choice question
+        console.log('📝 Creating question choices...');
+        const generalHealthQuestion = createdQuestions.find(q => q.uid === 'general_health');
+        if (generalHealthQuestion) {
+            const choicesData = [
+                { question_id: generalHealthQuestion.id, label: "Excellent", value: "excellent", order: 1 },
+                { question_id: generalHealthQuestion.id, label: "Good", value: "good", order: 2 },
+                { question_id: generalHealthQuestion.id, label: "Fair", value: "fair", order: 3 },
+                { question_id: generalHealthQuestion.id, label: "Poor", value: "poor", order: 4 }
+            ];
+            
+            for (const choiceData of choicesData) {
+                const createdChoice = await directus.items('question_choices').createOne(choiceData);
+                console.log(`✅ Created choice "${choiceData.label}" with ID: ${createdChoice.id}`);
+                await sleep(300);
+            }
+        }
+        
+        // Step 5: Create branching rules
+        console.log('📝 Creating branching rules...');
+        const healthConcernsQuestion = createdQuestions.find(q => q.uid === 'health_concerns');
+        const satisfactionQuestion = createdQuestions.find(q => q.uid === 'satisfaction_rating');
+        
+        if (generalHealthQuestion && healthConcernsQuestion && satisfactionQuestion) {
+            const branchingRulesData = [
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: generalHealthQuestion.id,
+                    operator: "eq",
+                    value: JSON.stringify("poor"),
+                    target_question_id: healthConcernsQuestion.id,
+                    order: 1
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: generalHealthQuestion.id,
+                    operator: "in",
+                    value: JSON.stringify(["excellent", "good"]),
+                    target_question_id: satisfactionQuestion.id,
+                    order: 2
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: satisfactionQuestion.id,
+                    operator: "lt",
+                    value: JSON.stringify(5),
+                    target_question_id: null,
+                    order: 3
                 }
-                
-                // Small delay between collections
-                await sleep(1000);
-            } else {
-                console.log(`⚠️ No data found for collection: ${collection.name}`);
+            ];
+            
+            for (const ruleData of branchingRulesData) {
+                const createdRule = await directus.items('branching_rules').createOne(ruleData);
+                console.log(`✅ Created branching rule with ID: ${createdRule.id}`);
+                await sleep(300);
             }
         }
         
