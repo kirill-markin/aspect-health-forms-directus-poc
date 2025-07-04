@@ -1,0 +1,530 @@
+# Directus Schema Definition
+# This file contains the complete schema definition for the Aspect Health Forms POC
+# Apply with: directus schema apply ./infra/schema/directus-schema.yaml
+
+version: 1
+directus: 10.0.0
+
+collections:
+  - collection: forms
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: archived
+      archive_value: true
+      collapse: open
+      collection: forms
+      color: null
+      display_template: '{{title}}'
+      group: null
+      hidden: false
+      icon: assignment
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: 1
+      sort_field: null
+      translations: null
+      unarchive_value: false
+      versioning: false
+    schema:
+      name: forms
+    fields:
+      - field: id
+        type: uuid
+        meta:
+          collection: forms
+          field: id
+          special:
+            - uuid
+          interface: input
+          options: null
+          display: null
+          display_options: null
+          readonly: true
+          hidden: true
+          sort: 1
+          width: full
+          translations: null
+          note: null
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: id
+          table: forms
+          data_type: uuid
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: false
+          is_unique: true
+          is_primary_key: true
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: slug
+        type: string
+        meta:
+          collection: forms
+          field: slug
+          special: null
+          interface: input
+          options: null
+          display: null
+          display_options: null
+          readonly: false
+          hidden: false
+          sort: 2
+          width: full
+          translations: null
+          note: URL-friendly identifier
+          conditions: null
+          required: true
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: slug
+          table: forms
+          data_type: varchar
+          default_value: null
+          generation_expression: null
+          max_length: 255
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: false
+          is_unique: true
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: title
+        type: string
+        meta:
+          collection: forms
+          field: title
+          special: null
+          interface: input
+          options: null
+          display: null
+          display_options: null
+          readonly: false
+          hidden: false
+          sort: 3
+          width: full
+          translations: null
+          note: null
+          conditions: null
+          required: true
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: title
+          table: forms
+          data_type: varchar
+          default_value: null
+          generation_expression: null
+          max_length: 255
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: false
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: description
+        type: text
+        meta:
+          collection: forms
+          field: description
+          special: null
+          interface: textarea
+          options: null
+          display: null
+          display_options: null
+          readonly: false
+          hidden: false
+          sort: 4
+          width: full
+          translations: null
+          note: null
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: description
+          table: forms
+          data_type: text
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: status
+        type: string
+        meta:
+          collection: forms
+          field: status
+          special: null
+          interface: select-dropdown
+          options:
+            choices:
+              - text: Draft
+                value: draft
+              - text: Published
+                value: published
+              - text: Archived
+                value: archived
+          display: labels
+          display_options:
+            choices:
+              - text: Draft
+                value: draft
+                foreground: '#FFFFFF'
+                background: '#FFC23B'
+              - text: Published
+                value: published
+                foreground: '#FFFFFF'
+                background: '#2ECDA7'
+              - text: Archived
+                value: archived
+                foreground: '#FFFFFF'
+                background: '#A2B5CD'
+          readonly: false
+          hidden: false
+          sort: 5
+          width: full
+          translations: null
+          note: null
+          conditions: null
+          required: true
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: status
+          table: forms
+          data_type: varchar
+          default_value: draft
+          generation_expression: null
+          max_length: 255
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: false
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: exit_map
+        type: json
+        meta:
+          collection: forms
+          field: exit_map
+          special:
+            - json
+          interface: input-code
+          options:
+            language: json
+          display: null
+          display_options: null
+          readonly: false
+          hidden: false
+          sort: 6
+          width: full
+          translations: null
+          note: Post-completion redirects
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: exit_map
+          table: forms
+          data_type: json
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: active_version_id
+        type: uuid
+        meta:
+          collection: forms
+          field: active_version_id
+          special:
+            - uuid
+          interface: select-dropdown-m2o
+          options:
+            template: '{{version}} - {{label}}'
+          display: related-values
+          display_options:
+            template: '{{version}} - {{label}}'
+          readonly: false
+          hidden: false
+          sort: 7
+          width: full
+          translations: null
+          note: Current published version
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: active_version_id
+          table: forms
+          data_type: uuid
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: id
+          foreign_key_table: form_versions
+          comment: null
+      - field: created_at
+        type: timestamp
+        meta:
+          collection: forms
+          field: created_at
+          special:
+            - date-created
+          interface: datetime
+          options: null
+          display: datetime
+          display_options:
+            relative: true
+          readonly: true
+          hidden: true
+          sort: 8
+          width: half
+          translations: null
+          note: null
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: created_at
+          table: forms
+          data_type: timestamp
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: updated_at
+        type: timestamp
+        meta:
+          collection: forms
+          field: updated_at
+          special:
+            - date-updated
+          interface: datetime
+          options: null
+          display: datetime
+          display_options:
+            relative: true
+          readonly: true
+          hidden: true
+          sort: 9
+          width: half
+          translations: null
+          note: null
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: updated_at
+          table: forms
+          data_type: timestamp
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: null
+          foreign_key_table: null
+          comment: null
+      - field: created_by
+        type: uuid
+        meta:
+          collection: forms
+          field: created_by
+          special:
+            - user-created
+          interface: select-dropdown-m2o
+          options:
+            template: '{{first_name}} {{last_name}}'
+          display: user
+          display_options: null
+          readonly: true
+          hidden: true
+          sort: 10
+          width: half
+          translations: null
+          note: null
+          conditions: null
+          required: false
+          group: null
+          validation: null
+          validation_message: null
+        schema:
+          name: created_by
+          table: forms
+          data_type: uuid
+          default_value: null
+          generation_expression: null
+          max_length: null
+          numeric_precision: null
+          numeric_scale: null
+          is_generated: false
+          is_nullable: true
+          is_unique: false
+          is_primary_key: false
+          has_auto_increment: false
+          foreign_key_column: id
+          foreign_key_table: directus_users
+          comment: null
+
+  - collection: form_versions
+    meta:
+      accountability: all
+      archive_app_filter: true
+      archive_field: null
+      archive_value: null
+      collapse: open
+      collection: form_versions
+      color: null
+      display_template: 'v{{version}} - {{label}}'
+      group: null
+      hidden: false
+      icon: history
+      item_duplication_fields: null
+      note: null
+      preview_url: null
+      singleton: false
+      sort: 2
+      sort_field: version
+      translations: null
+      unarchive_value: false
+      versioning: false
+    schema:
+      name: form_versions
+
+  - collection: questions
+    meta:
+      accountability: all
+      collection: questions
+      display_template: '{{label}}'
+      icon: help_outline
+      sort: 3
+    schema:
+      name: questions
+
+  - collection: question_choices
+    meta:
+      accountability: all
+      collection: question_choices
+      display_template: '{{label}}'
+      icon: radio_button_checked
+      sort: 4
+    schema:
+      name: question_choices
+
+  - collection: branching_rules
+    meta:
+      accountability: all
+      collection: branching_rules
+      display_template: 'Rule {{order}} - {{operator}}'
+      icon: call_split
+      sort: 5
+    schema:
+      name: branching_rules
+
+  - collection: form_webhooks
+    meta:
+      accountability: all
+      collection: form_webhooks
+      display_template: '{{url}}'
+      icon: webhook
+      sort: 6
+    schema:
+      name: form_webhooks
+
+  - collection: responses
+    meta:
+      accountability: all
+      collection: responses
+      display_template: '{{user_id}} - {{status}}'
+      icon: assignment_turned_in
+      sort: 7
+    schema:
+      name: responses
+
+  - collection: response_items
+    meta:
+      accountability: all
+      collection: response_items
+      display_template: '{{question_uid}}'
+      icon: list_alt
+      sort: 8
+    schema:
+      name: response_items

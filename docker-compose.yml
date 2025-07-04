@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  directus:
+    image: directus/directus:latest
+    depends_on:
+      - database
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+      STORAGE_LOCATIONS: "local"
+      STORAGE_LOCAL_DRIVER: "local"
+      STORAGE_LOCAL_ROOT: "./uploads"
+      WEBSOCKETS_ENABLED: "true"
+      RATE_LIMITER_ENABLED: "false"
+      EXTENSIONS_AUTO_RELOAD: "true"
+      LOG_LEVEL: "info"
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+      - directus_database:/directus/database
+      - directus_cache:/directus/cache
+    ports:
+      - "8055:8055"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  directus_uploads:
+  directus_extensions:
+  directus_database:
+  directus_cache:

@@ -1,0 +1,175 @@
+{
+  "forms": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "slug": "demo-health-survey",
+      "title": "Health Survey Demo",
+      "description": "A demonstration health survey form with conditional logic",
+      "status": "published",
+      "exit_map": {
+        "success": "https://example.com/success",
+        "incomplete": "https://example.com/incomplete",
+        "high_risk": "https://example.com/high-risk"
+      },
+      "active_version_id": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ],
+  "form_versions": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "form_id": "550e8400-e29b-41d4-a716-446655440000",
+      "version": 1,
+      "label": "Initial Version"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "uid": "general_health",
+      "label": "How would you rate your general health?",
+      "type": "multiple_choice",
+      "required": true,
+      "order": 1,
+      "settings_json": {
+        "multiple": false,
+        "randomize": false
+      },
+      "archived": false
+    },
+    {
+      "id": "q2-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "uid": "health_concerns",
+      "label": "Please describe any specific health concerns you have:",
+      "type": "long_text",
+      "required": false,
+      "order": 2,
+      "settings_json": {
+        "placeholder": "Please provide details about your health concerns..."
+      },
+      "archived": false
+    },
+    {
+      "id": "q3-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "uid": "satisfaction_rating",
+      "label": "How satisfied are you with your current healthcare provider?",
+      "type": "nps",
+      "required": true,
+      "order": 3,
+      "settings_json": {
+        "min": 0,
+        "max": 10,
+        "min_label": "Not satisfied at all",
+        "max_label": "Extremely satisfied"
+      },
+      "archived": false
+    },
+    {
+      "id": "q4-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "uid": "contact_info",
+      "label": "Please provide your contact information:",
+      "type": "short_text",
+      "required": true,
+      "order": 4,
+      "settings_json": {
+        "placeholder": "Email address"
+      },
+      "archived": false
+    }
+  ],
+  "question_choices": [
+    {
+      "id": "c1-550e8400-e29b-41d4-a716-446655440000",
+      "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "label": "Excellent",
+      "value": "excellent",
+      "order": 1,
+      "is_default": false
+    },
+    {
+      "id": "c2-550e8400-e29b-41d4-a716-446655440000",
+      "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "label": "Good",
+      "value": "good",
+      "order": 2,
+      "is_default": false
+    },
+    {
+      "id": "c3-550e8400-e29b-41d4-a716-446655440000",
+      "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "label": "Fair",
+      "value": "fair",
+      "order": 3,
+      "is_default": false
+    },
+    {
+      "id": "c4-550e8400-e29b-41d4-a716-446655440000",
+      "question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "label": "Poor",
+      "value": "poor",
+      "order": 4,
+      "is_default": false
+    }
+  ],
+  "branching_rules": [
+    {
+      "id": "r1-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "when_question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "when_hidden_field": null,
+      "operator": "eq",
+      "value": "poor",
+      "value_array": null,
+      "value_max": null,
+      "goto_question_id": "q2-550e8400-e29b-41d4-a716-446655440000",
+      "goto_exit_key": null,
+      "is_fallback": false,
+      "order": 1
+    },
+    {
+      "id": "r2-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "when_question_id": "q1-550e8400-e29b-41d4-a716-446655440000",
+      "when_hidden_field": null,
+      "operator": "in",
+      "value": null,
+      "value_array": ["excellent", "good"],
+      "value_max": null,
+      "goto_question_id": "q3-550e8400-e29b-41d4-a716-446655440000",
+      "goto_exit_key": null,
+      "is_fallback": false,
+      "order": 2
+    },
+    {
+      "id": "r3-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "when_question_id": "q3-550e8400-e29b-41d4-a716-446655440000",
+      "when_hidden_field": null,
+      "operator": "lt",
+      "value": "5",
+      "value_array": null,
+      "value_max": null,
+      "goto_question_id": null,
+      "goto_exit_key": "high_risk",
+      "is_fallback": false,
+      "order": 3
+    },
+    {
+      "id": "r4-550e8400-e29b-41d4-a716-446655440000",
+      "form_version_id": "550e8400-e29b-41d4-a716-446655440001",
+      "when_question_id": null,
+      "when_hidden_field": null,
+      "operator": "eq",
+      "value": null,
+      "value_array": null,
+      "value_max": null,
+      "goto_question_id": "q4-550e8400-e29b-41d4-a716-446655440000",
+      "goto_exit_key": null,
+      "is_fallback": true,
+      "order": 10
+    }
+  ]
+}
