@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
 const { Directus } = require('@directus/sdk');
 
 // Configuration
@@ -50,22 +48,22 @@ async function seedData() {
             console.error('❌ Full error:', permError);
         }
         
-        // Load seed data
-        const seedFilePath = path.join(__dirname, '../infra/seeds/demo-forms.seed.json');
-        
-        if (!fs.existsSync(seedFilePath)) {
-            throw new Error(`Seed file not found: ${seedFilePath}`);
-        }
-        
-        const seedData = JSON.parse(fs.readFileSync(seedFilePath, 'utf8'));
-        console.log('📄 Seed data loaded successfully');
-        
         // Insert data step by step, getting auto-generated IDs
         console.log('📝 Inserting data with auto-generated IDs...');
         
         // Step 1: Create forms (without ID)
         console.log('📝 Creating forms...');
-        const formData = seedData.forms[0]; // Just one form for demo
+        const formData = {
+            slug: "demo-health-survey",
+            title: "Health Survey Demo",
+            description: "A demonstration health survey form with conditional logic",
+            status: "published",
+            exit_map: {
+                "success": "https://example.com/success",
+                "incomplete": "https://example.com/incomplete",
+                "high_risk": "https://example.com/high-risk"
+            }
+        };
         const createdForm = await directus.items('forms').createOne(formData);
         console.log(`✅ Created form with ID: ${createdForm.id}`);
         await sleep(2000);
@@ -150,7 +148,8 @@ async function seedData() {
         const satisfactionQuestion = createdQuestions.find(q => q.uid === 'satisfaction_rating');
         
         if (generalHealthQuestion && healthConcernsQuestion && satisfactionQuestion) {
-            const branchingRulesData = [
+            // First, create rules with target_question_id
+            const simpleRulesData = [
                 {
                     form_version_id: createdFormVersion.id,
                     question_id: generalHealthQuestion.id,
@@ -166,20 +165,42 @@ async function seedData() {
                     value: JSON.stringify(["excellent", "good"]),
                     target_question_id: satisfactionQuestion.id,
                     order: 2
-                },
+                }
+            ];
+            
+            for (const ruleData of simpleRulesData) {
+                const createdRule = await directus.items('branching_rules').createOne(ruleData);
+                console.log(`✅ Created branching rule with ID: ${createdRule.id}`);
+                await sleep(300);
+            }
+            
+            // Create exit rules (using last question as target)
+            console.log('📝 Creating exit rules...');
+            const contactInfoQuestion = createdQuestions.find(q => q.uid === 'contact_info');
+            const exitRulesData = [
                 {
                     form_version_id: createdFormVersion.id,
                     question_id: satisfactionQuestion.id,
                     operator: "lt",
                     value: JSON.stringify(5),
-                    target_question_id: null,
+                    target_question_id: contactInfoQuestion.id,
+                    exit_key: "high_risk",
                     order: 3
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: satisfactionQuestion.id,
+                    operator: "gt",
+                    value: JSON.stringify(8),
+                    target_question_id: contactInfoQuestion.id,
+                    exit_key: "success",
+                    order: 4
                 }
             ];
             
-            for (const ruleData of branchingRulesData) {
+            for (const ruleData of exitRulesData) {
                 const createdRule = await directus.items('branching_rules').createOne(ruleData);
-                console.log(`✅ Created branching rule with ID: ${createdRule.id}`);
+                console.log(`✅ Created exit rule with ID: ${createdRule.id} (exit: ${ruleData.exit_key})`);
                 await sleep(300);
             }
         }

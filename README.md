@@ -113,45 +113,6 @@ Use this checklist to verify your local setup is working correctly:
 
 **If all checkboxes are ✅, your POC is ready for demonstration!**
 
-## Project Structure
-
-```
-aspect-health-forms-directus-poc/
-├── README.md
-├── docker-compose.yml          # Directus + PostgreSQL setup
-├── .env                        # Environment configuration
-│
-├── infra/                      # Infrastructure as Code
-│   ├── schema/
-│   │   └── directus-schema.yaml    # Complete schema definition
-│   ├── migrations/
-│   │   └── *.sql                   # Custom SQL migrations
-│   ├── seeds/
-│   │   └── demo-forms.seed.json    # Demo data
-│   └── ci/
-│       ├── snapshot.sh             # Export schema
-│       ├── apply.sh                # Apply schema
-│       └── migrate.sh              # Run migrations
-│
-├── app/                        # React Native Application
-│   ├── package.json
-│   ├── app.json
-│   └── src/
-│       ├── api/directus.ts         # API client
-│       ├── components/
-│       │   ├── FormRenderer.tsx    # Dynamic form renderer
-│       │   └── fields/             # Question type components
-│       ├── screens/
-│       │   ├── HomeScreen.tsx          # Entry screen with form selection
-│       │   ├── DemoFormScreen.tsx
-│       │   └── SuccessScreen.tsx
-│       └── utils/branching.ts      # Logic evaluation
-│
-└── scripts/
-    ├── dev-up.sh               # Start development environment
-    └── reset.sh                # Clean slate
-```
-
 ## Core Features
 
 ### Dynamic Form Management

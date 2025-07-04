@@ -61,6 +61,7 @@ export interface BranchingRule {
   operator: 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'lt' | 'is_empty' | 'is_not_empty';
   value: any;
   target_question_id?: string;
+  exit_key?: string;
   order: number;
 }
 

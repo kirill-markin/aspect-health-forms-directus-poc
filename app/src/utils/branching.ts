@@ -61,6 +61,7 @@ export class BranchingEngine {
       if (ruleResult.matches) {
         return {
           nextQuestionId: rule.target_question_id || undefined,
+          exitKey: rule.exit_key || undefined,
           shouldExit: !rule.target_question_id
         };
       }
@@ -75,8 +76,8 @@ export class BranchingEngine {
       };
     }
 
-    // No more questions, exit
-    return { shouldExit: true };
+    // No more questions, exit with default success
+    return { shouldExit: true, exitKey: 'success' };
   }
 
   private evaluateRule(rule: BranchingRule, currentAnswer: any): { matches: boolean } {

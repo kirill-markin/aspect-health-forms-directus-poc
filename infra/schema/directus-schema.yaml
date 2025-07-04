@@ -1162,6 +1162,8 @@ fields:
       interface: select-dropdown-m2o
       options:
         template: '{{uid}} - {{label}}'
+        allowClear: true
+        placeholder: "Select target question (optional)"
       display: related-values
       display_options:
         template: '{{uid}} - {{label}}'
@@ -1170,7 +1172,7 @@ fields:
       sort: 6
       width: half
       required: false
-      note: Question to show if condition is met
+      note: Question to show if condition is met (optional for exit rules)
     schema:
       name: target_question_id
       table: branching_rules
@@ -1199,6 +1201,29 @@ fields:
       table: branching_rules
       data_type: integer
       is_nullable: false
+      is_unique: false
+      is_primary_key: false
+      has_auto_increment: false
+
+  - collection: branching_rules
+    field: exit_key
+    type: string
+    meta:
+      collection: branching_rules
+      field: exit_key
+      interface: input
+      readonly: false
+      hidden: false
+      sort: 8
+      width: half
+      required: false
+      note: Exit key for form completion (from forms.exit_map)
+    schema:
+      name: exit_key
+      table: branching_rules
+      data_type: varchar
+      max_length: 255
+      is_nullable: true
       is_unique: false
       is_primary_key: false
       has_auto_increment: false

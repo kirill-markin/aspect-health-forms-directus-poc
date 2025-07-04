@@ -114,7 +114,7 @@ Branching rules support:
 ### Backend (Directus)
 - **Collections**: 8 core collections defining the form system
 - **Schema as Code**: `infra/schema/directus-schema.yaml` contains complete structure
-- **Demo Data**: `infra/seeds/demo-forms.seed.json` for health survey example
+- **Demo Data**: `scripts/seed-data.js` for health survey example
 
 ### Frontend (React Native)
 - **FormRenderer**: Dynamic component that renders any form structure using BranchingEngine
