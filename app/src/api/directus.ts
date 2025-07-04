@@ -58,7 +58,6 @@ export interface Form {
   description?: string;
   status: 'draft' | 'published' | 'archived';
   exit_map?: Record<string, string>;
-  active_version_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -212,6 +211,42 @@ export const directusClient = {
       };
     } catch (error) {
       console.error('Error fetching form version:', error);
+      return null;
+    }
+  },
+
+  // Get the latest version for a form
+  async getLatestFormVersion(formId: string): Promise<{
+    version: FormVersion;
+    questions: Question[];
+    branchingRules: BranchingRule[];
+  } | null> {
+    try {
+      await ensureAuthentication();
+      
+      console.log('Getting latest form version for form:', formId);
+      
+      // Get the latest version for this form
+      const versionsResponse = await directus.request(
+        readItems('form_versions', {
+          filter: { form_id: { _eq: formId } },
+          sort: ['-version'], // Sort by version descending to get the latest
+          limit: 1
+        })
+      ) as FormVersion[];
+      
+      if (!versionsResponse || versionsResponse.length === 0) {
+        console.log('No versions found for form:', formId);
+        return null;
+      }
+      
+      const latestVersion = versionsResponse[0];
+      console.log('Latest version found:', latestVersion);
+      
+      // Use the existing getFormVersion function to get full version data
+      return await this.getFormVersion(latestVersion.id);
+    } catch (error) {
+      console.error('Error fetching latest form version:', error);
       return null;
     }
   },

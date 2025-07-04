@@ -159,7 +159,7 @@ The POC includes a health survey demo with:
 const form = await directusClient.getFormBySlug('demo-health-survey');
 
 // Load form version with questions and rules
-const versionData = await directusClient.getFormVersion(form.active_version_id);
+const versionData = await directusClient.getLatestFormVersion(form.id);
 
 // Create response session
 const response = await directusClient.createResponse(versionId, userId);

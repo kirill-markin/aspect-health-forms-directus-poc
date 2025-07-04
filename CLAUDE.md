@@ -83,7 +83,7 @@ The form system uses a **versioned, relational architecture**:
 ### Collections and Fields Created
 The automated setup creates these collections with complete field definitions:
 
-- **Forms** - Main form definitions (id, slug, title, description, status, active_version_id, created_at, updated_at)
+- **Forms** - Main form definitions (id, slug, title, description, status, created_at, updated_at)
 - **Form Versions** - Immutable form versions (id, form_id, version, label, created_at)
 - **Questions** - Individual questions (id, form_version_id, uid, label, type, required, order)
 - **Question Choices** - Multiple choice options (id, question_id, label, value, order)

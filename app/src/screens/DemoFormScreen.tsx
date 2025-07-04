@@ -48,19 +48,17 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
       
       setForm(formData);
       
-      // Load active version
-      if (formData.active_version_id) {
-        const versionData = await directusClient.getFormVersion(formData.active_version_id);
-        if (versionData) {
-          setFormVersion(versionData.version);
-          setQuestions(versionData.questions);
-          setBranchingRules(versionData.branchingRules);
-          
-          // Create or load response session
-          await initializeResponse(versionData.version.id);
-        }
+      // Load latest version
+      const versionData = await directusClient.getLatestFormVersion(formData.id);
+      if (versionData) {
+        setFormVersion(versionData.version);
+        setQuestions(versionData.questions);
+        setBranchingRules(versionData.branchingRules);
+        
+        // Create or load response session
+        await initializeResponse(versionData.version.id);
       } else {
-        setError('Form has no active version');
+        setError('Form has no versions available');
       }
     } catch (err) {
       console.error('Error loading form:', err);
