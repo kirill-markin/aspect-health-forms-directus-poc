@@ -25,7 +25,10 @@ export class BranchingEngine {
     // Convert answers array to map for easier lookup
     this.answers = new Map();
     answers.forEach(answer => {
-      this.answers.set(answer.question_uid, answer.value_jsonb);
+      const question = this.questions.find(q => q.id === answer.question_id);
+      if (question) {
+        this.answers.set(question.uid, answer.value);
+      }
     });
   }
 
@@ -47,50 +50,20 @@ export class BranchingEngine {
 
     const currentAnswer = this.answers.get(currentQuestionUid);
 
-    // Find applicable branching rules
+    // Find applicable branching rules for the current question
     const applicableRules = this.rules.filter(rule => {
-      // Rules that apply to the current question
-      if (rule.when_question_id === currentQuestion.id) {
-        return true;
-      }
-      
-      // Rules that apply to hidden fields
-      if (rule.when_hidden_field && this.hiddenFields[rule.when_hidden_field] !== undefined) {
-        return true;
-      }
-      
-      // Fallback rules
-      if (rule.is_fallback) {
-        return true;
-      }
-      
-      return false;
+      return rule.question_id === currentQuestion.id;
     });
 
     // Evaluate rules in order
     for (const rule of applicableRules) {
-      if (rule.is_fallback) {
-        continue; // Process fallback rules last
-      }
-
       const ruleResult = this.evaluateRule(rule, currentAnswer);
       if (ruleResult.matches) {
         return {
-          nextQuestionId: rule.goto_question_id || undefined,
-          exitKey: rule.goto_exit_key || undefined,
-          shouldExit: !!rule.goto_exit_key
+          nextQuestionId: rule.target_question_id || undefined,
+          shouldExit: !rule.target_question_id
         };
       }
-    }
-
-    // Check fallback rules
-    const fallbackRule = applicableRules.find(rule => rule.is_fallback);
-    if (fallbackRule) {
-      return {
-        nextQuestionId: fallbackRule.goto_question_id || undefined,
-        exitKey: fallbackRule.goto_exit_key || undefined,
-        shouldExit: !!fallbackRule.goto_exit_key
-      };
     }
 
     // Default behavior: go to next question in sequence
@@ -107,71 +80,41 @@ export class BranchingEngine {
   }
 
   private evaluateRule(rule: BranchingRule, currentAnswer: any): { matches: boolean } {
-    let compareValue: any;
-    
-    // Get the value to compare against
-    if (rule.when_hidden_field) {
-      compareValue = this.hiddenFields[rule.when_hidden_field];
-    } else {
-      compareValue = currentAnswer;
-    }
+    const compareValue = currentAnswer;
 
     // Handle null/undefined values
     if (compareValue === null || compareValue === undefined) {
       return { matches: rule.operator === 'is_empty' };
     }
 
-    // Convert to string for comparison if needed
-    const valueStr = String(compareValue);
-    const ruleValueStr = rule.value ? String(rule.value) : '';
-
     switch (rule.operator) {
       case 'eq':
-        return { matches: valueStr === ruleValueStr };
+        return { matches: compareValue === rule.value };
       
       case 'neq':
-        return { matches: valueStr !== ruleValueStr };
+        return { matches: compareValue !== rule.value };
       
       case 'in':
-        return { matches: rule.value_array ? rule.value_array.includes(valueStr) : false };
+        return { matches: Array.isArray(rule.value) && rule.value.includes(compareValue) };
       
       case 'not_in':
-        return { matches: rule.value_array ? !rule.value_array.includes(valueStr) : true };
+        return { matches: Array.isArray(rule.value) && !rule.value.includes(compareValue) };
       
       case 'gt':
-        const gtValue = parseFloat(valueStr);
-        const gtCompare = parseFloat(ruleValueStr);
+        const gtValue = parseFloat(String(compareValue));
+        const gtCompare = parseFloat(String(rule.value));
         return { matches: !isNaN(gtValue) && !isNaN(gtCompare) && gtValue > gtCompare };
       
       case 'lt':
-        const ltValue = parseFloat(valueStr);
-        const ltCompare = parseFloat(ruleValueStr);
+        const ltValue = parseFloat(String(compareValue));
+        const ltCompare = parseFloat(String(rule.value));
         return { matches: !isNaN(ltValue) && !isNaN(ltCompare) && ltValue < ltCompare };
       
-      case 'gte':
-        const gteValue = parseFloat(valueStr);
-        const gteCompare = parseFloat(ruleValueStr);
-        return { matches: !isNaN(gteValue) && !isNaN(gteCompare) && gteValue >= gteCompare };
-      
-      case 'lte':
-        const lteValue = parseFloat(valueStr);
-        const lteCompare = parseFloat(ruleValueStr);
-        return { matches: !isNaN(lteValue) && !isNaN(lteCompare) && lteValue <= lteCompare };
-      
-      case 'between':
-        const betweenValue = parseFloat(valueStr);
-        const betweenMin = parseFloat(ruleValueStr);
-        const betweenMax = rule.value_max ? parseFloat(rule.value_max) : NaN;
-        return { 
-          matches: !isNaN(betweenValue) && !isNaN(betweenMin) && !isNaN(betweenMax) && 
-                   betweenValue >= betweenMin && betweenValue <= betweenMax 
-        };
-      
       case 'is_empty':
-        return { matches: !valueStr || valueStr.trim() === '' };
+        return { matches: !compareValue || String(compareValue).trim() === '' };
       
       case 'is_not_empty':
-        return { matches: !!(valueStr && valueStr.trim() !== '') };
+        return { matches: !!(compareValue && String(compareValue).trim() !== '') };
       
       default:
         return { matches: false };

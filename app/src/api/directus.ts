@@ -57,15 +57,10 @@ export interface QuestionChoice {
 export interface BranchingRule {
   id: string;
   form_version_id: string;
-  when_question_id?: string;
-  when_hidden_field?: string;
-  operator: 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'is_empty' | 'is_not_empty';
-  value?: string;
-  value_array?: string[];
-  value_max?: string;
-  goto_question_id?: string;
-  goto_exit_key?: string;
-  is_fallback: boolean;
+  question_id: string;
+  operator: 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'lt' | 'is_empty' | 'is_not_empty';
+  value: any;
+  target_question_id?: string;
   order: number;
 }
 
@@ -84,10 +79,8 @@ export interface Response {
 export interface ResponseItem {
   id: string;
   response_id: string;
-  question_uid: string;
-  value_jsonb: any;
-  uploaded_file?: string;
-  answered_at: string;
+  question_id: string;
+  value: any;
 }
 
 // API Functions
@@ -184,13 +177,12 @@ export const directusClient = {
   },
 
   // Save answer to a question
-  async saveAnswer(responseId: string, questionUid: string, value: any): Promise<boolean> {
+  async saveAnswer(responseId: string, questionId: string, value: any): Promise<boolean> {
     try {
       await directusApi.post(`/items/response_items`, {
         response_id: responseId,
-        question_uid: questionUid,
-        value_jsonb: value,
-        answered_at: new Date().toISOString()
+        question_id: questionId,
+        value: value
       });
       return true;
     } catch (error) {

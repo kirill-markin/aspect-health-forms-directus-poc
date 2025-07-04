@@ -137,7 +137,7 @@ collections:
       collapse: open
       collection: response_items
       color: null
-      display_template: '{{question_uid}}'
+      display_template: '{{question_id.uid}}'
       group: null
       hidden: false
       icon: list_alt
@@ -990,26 +990,33 @@ fields:
       foreign_key_table: responses
 
   - collection: response_items
-    field: question_uid
-    type: string
+    field: question_id
+    type: uuid
     meta:
       collection: response_items
-      field: question_uid
-      interface: input
+      field: question_id
+      special: [uuid]
+      interface: select-dropdown-m2o
+      options:
+        template: '{{uid}} - {{label}}'
+      display: related-values
+      display_options:
+        template: '{{uid}} - {{label}}'
       readonly: false
       hidden: false
       sort: 3
       width: half
       required: true
     schema:
-      name: question_uid
+      name: question_id
       table: response_items
-      data_type: varchar
-      max_length: 255
+      data_type: uuid
       is_nullable: false
       is_unique: false
       is_primary_key: false
       has_auto_increment: false
+      foreign_key_column: id
+      foreign_key_table: questions
 
   - collection: response_items
     field: value
@@ -1083,26 +1090,33 @@ fields:
       foreign_key_table: form_versions
 
   - collection: branching_rules
-    field: question_uid
-    type: string
+    field: question_id
+    type: uuid
     meta:
       collection: branching_rules
-      field: question_uid
-      interface: input
+      field: question_id
+      special: [uuid]
+      interface: select-dropdown-m2o
+      options:
+        template: '{{uid}} - {{label}}'
+      display: related-values
+      display_options:
+        template: '{{uid}} - {{label}}'
       readonly: false
       hidden: false
       sort: 3
       width: half
       required: true
     schema:
-      name: question_uid
+      name: question_id
       table: branching_rules
-      data_type: varchar
-      max_length: 255
+      data_type: uuid
       is_nullable: false
       is_unique: false
       is_primary_key: false
       has_auto_increment: false
+      foreign_key_column: id
+      foreign_key_table: questions
 
   - collection: branching_rules
     field: operator
@@ -1169,12 +1183,18 @@ fields:
       has_auto_increment: false
 
   - collection: branching_rules
-    field: target_question_uid
-    type: string
+    field: target_question_id
+    type: uuid
     meta:
       collection: branching_rules
-      field: target_question_uid
-      interface: input
+      field: target_question_id
+      special: [uuid]
+      interface: select-dropdown-m2o
+      options:
+        template: '{{uid}} - {{label}}'
+      display: related-values
+      display_options:
+        template: '{{uid}} - {{label}}'
       readonly: false
       hidden: false
       sort: 6
@@ -1182,14 +1202,15 @@ fields:
       required: false
       note: Question to show if condition is met
     schema:
-      name: target_question_uid
+      name: target_question_id
       table: branching_rules
-      data_type: varchar
-      max_length: 255
+      data_type: uuid
       is_nullable: true
       is_unique: false
       is_primary_key: false
       has_auto_increment: false
+      foreign_key_column: id
+      foreign_key_table: questions
 
   - collection: branching_rules
     field: order
@@ -1345,6 +1366,28 @@ relations:
       on_update: CASCADE
       on_delete: CASCADE
 
+  - collection: response_items
+    field: question_id
+    related_collection: questions
+    meta:
+      junction_field: null
+      many_collection: response_items
+      many_field: question_id
+      one_allowed_collections: null
+      one_collection: questions
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: null
+      sort_field: null
+    schema:
+      table: response_items
+      column: question_id
+      foreign_key_table: questions
+      foreign_key_column: id
+      constraint_name: response_items_question_id_foreign
+      on_update: CASCADE
+      on_delete: CASCADE
+
   - collection: branching_rules
     field: form_version_id
     related_collection: form_versions
@@ -1365,4 +1408,48 @@ relations:
       foreign_key_column: id
       constraint_name: branching_rules_form_version_id_foreign
       on_update: CASCADE
-      on_delete: CASCADE 
+      on_delete: CASCADE
+
+  - collection: branching_rules
+    field: question_id
+    related_collection: questions
+    meta:
+      junction_field: null
+      many_collection: branching_rules
+      many_field: question_id
+      one_allowed_collections: null
+      one_collection: questions
+      one_collection_field: null
+      one_deselect_action: delete
+      one_field: null
+      sort_field: null
+    schema:
+      table: branching_rules
+      column: question_id
+      foreign_key_table: questions
+      foreign_key_column: id
+      constraint_name: branching_rules_question_id_foreign
+      on_update: CASCADE
+      on_delete: CASCADE
+
+  - collection: branching_rules
+    field: target_question_id
+    related_collection: questions
+    meta:
+      junction_field: null
+      many_collection: branching_rules
+      many_field: target_question_id
+      one_allowed_collections: null
+      one_collection: questions
+      one_collection_field: null
+      one_deselect_action: nullify
+      one_field: null
+      sort_field: null
+    schema:
+      table: branching_rules
+      column: target_question_id
+      foreign_key_table: questions
+      foreign_key_column: id
+      constraint_name: branching_rules_target_question_id_foreign
+      on_update: CASCADE
+      on_delete: SET NULL 

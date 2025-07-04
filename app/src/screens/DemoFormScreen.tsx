@@ -79,19 +79,22 @@ const DemoFormScreen: React.FC = () => {
     if (!response) return;
 
     try {
+      // Find the question by UID to get its ID
+      const question = questions.find(q => q.uid === questionUid);
+      if (!question) return;
+
       // Save answer to backend
-      const success = await directusClient.saveAnswer(response.id, questionUid, value);
+      const success = await directusClient.saveAnswer(response.id, question.id, value);
       if (success) {
         // Update local answers
         const updatedAnswers = [...answers];
-        const existingIndex = updatedAnswers.findIndex(a => a.question_uid === questionUid);
+        const existingIndex = updatedAnswers.findIndex(a => a.question_id === question.id);
         
         const answerItem: ResponseItem = {
           id: `temp_${Date.now()}`,
           response_id: response.id,
-          question_uid: questionUid,
-          value_jsonb: value,
-          answered_at: new Date().toISOString()
+          question_id: question.id,
+          value: value
         };
         
         if (existingIndex >= 0) {
@@ -124,7 +127,7 @@ const DemoFormScreen: React.FC = () => {
         Alert.alert(
           'Form Completed',
           `Thank you for completing the form! Redirecting to: ${form.exit_map[exitKey]}`,
-          [{ text: 'OK', onPress: () => console.log('Redirect to:', form.exit_map[exitKey]) }]
+          [{ text: 'OK', onPress: () => console.log('Redirect to:', form.exit_map?.[exitKey]) }]
         );
       } else {
         Alert.alert(
