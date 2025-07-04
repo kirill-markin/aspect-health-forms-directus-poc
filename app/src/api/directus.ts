@@ -287,7 +287,7 @@ export const directusClient = {
         createItem('response_items', {
           response_id: responseId,
           question_id: questionId,
-          value: value
+          value: JSON.stringify(value)
         })
       );
       

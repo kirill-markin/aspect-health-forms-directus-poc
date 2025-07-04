@@ -18,7 +18,23 @@ export class BranchingEngine {
     answers: ResponseItem[] = [],
     hiddenFields: Record<string, any> = {}
   ) {
-    this.rules = rules.sort((a, b) => a.order - b.order);
+    // Parse rule values from JSON strings (if they are JSON)
+    this.rules = rules.sort((a, b) => a.order - b.order).map(rule => {
+      let value = rule.value;
+      if (typeof value === 'string') {
+        try {
+          // Only parse if it looks like JSON (starts with quotes, brackets, or braces)
+          if (value.startsWith('"') || value.startsWith('[') || value.startsWith('{')) {
+            value = JSON.parse(value);
+          }
+        } catch (error) {
+          console.error('Error parsing rule value:', error);
+          // Keep original value if parsing fails
+        }
+      }
+      return { ...rule, value };
+    });
+    
     this.questions = questions.sort((a, b) => a.order - b.order);
     this.hiddenFields = hiddenFields;
     
@@ -27,7 +43,20 @@ export class BranchingEngine {
     answers.forEach(answer => {
       const question = this.questions.find(q => q.id === answer.question_id);
       if (question) {
-        this.answers.set(question.uid, answer.value);
+        // Parse JSON value back to original format (if it's JSON)
+        let value = answer.value;
+        if (typeof value === 'string') {
+          try {
+            // Only parse if it looks like JSON (starts with quotes, brackets, or braces)
+            if (value.startsWith('"') || value.startsWith('[') || value.startsWith('{')) {
+              value = JSON.parse(value);
+            }
+          } catch (error) {
+            console.error('Error parsing answer value in branching engine:', error);
+            // Keep original value if parsing fails
+          }
+        }
+        this.answers.set(question.uid, value);
       }
     });
   }

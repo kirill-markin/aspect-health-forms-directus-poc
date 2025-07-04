@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, ImageBackground } from 'react-native';
 import { Text, Button, Card, ActivityIndicator } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { directusClient, Form } from '../api/directus';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -70,7 +71,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#0066CC" />
         <Text style={styles.loadingText}>Loading available forms...</Text>
       </View>
     );
@@ -80,7 +81,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <Button mode="outlined" onPress={loadAvailableForms} style={styles.retryButton}>
+        <Button mode="contained" onPress={loadAvailableForms} style={styles.retryButton}>
           Retry
         </Button>
       </View>
@@ -89,16 +90,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Aspect Health Forms</Text>
+      <LinearGradient
+        colors={['#0066CC', '#4A90E2']}
+        style={styles.header}
+      >
+        <Text style={styles.title}>Welcome to</Text>
+        <Text style={styles.titleBold}>Aspect</Text>
         <Text style={styles.subtitle}>
           Complete health surveys and assessments to help us provide better care
         </Text>
-      </View>
+      </LinearGradient>
 
-      <View style={styles.formsContainer}>
-        <Text style={styles.sectionTitle}>Available Forms</Text>
-        
+      <View style={styles.content}>
         {forms.length === 0 ? (
           <Card style={styles.emptyCard}>
             <Card.Content>
@@ -108,37 +111,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         ) : (
           forms.map((form) => (
             <Card key={form.id} style={styles.formCard}>
-              <Card.Content>
+              <Card.Content style={styles.formContent}>
                 <Text style={styles.formTitle}>{form.title}</Text>
                 {form.description && (
                   <Text style={styles.formDescription}>{form.description}</Text>
                 )}
                 
-                <View style={styles.formMeta}>
-                  <Text style={styles.formStatus}>
-                    Status: {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
-                  </Text>
-                </View>
-              </Card.Content>
-              
-              <Card.Actions>
                 <Button
                   mode="contained"
                   onPress={() => handleStartForm(form.slug)}
                   style={styles.startButton}
+                  labelStyle={styles.startButtonLabel}
                 >
-                  Start Form
+                  Start Survey
                 </Button>
-              </Card.Actions>
+              </Card.Content>
             </Card>
           ))
         )}
-      </View>
 
-      <View style={styles.infoSection}>
         <Card style={styles.infoCard}>
           <Card.Content>
-            <Text style={styles.infoTitle}>About Health Forms</Text>
+            <Text style={styles.infoTitle}>📋 About Health Forms</Text>
             <Text style={styles.infoText}>
               Your responses help us understand your health needs better and provide 
               personalized care recommendations. All information is kept confidential 
@@ -154,109 +148,126 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    padding: 24,
-    backgroundColor: '#fff',
-    marginBottom: 16,
+    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  titleBold: {
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#333',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#E6F3FF',
+    textAlign: 'center',
     lineHeight: 22,
+    paddingHorizontal: 20,
   },
-  formsContainer: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
+  content: {
+    padding: 20,
   },
   formCard: {
-    marginBottom: 16,
+    marginBottom: 20,
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  formContent: {
+    padding: 24,
   },
   formTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    color: '#1A202C',
     marginBottom: 8,
   },
   formDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-    lineHeight: 20,
-  },
-  formMeta: {
-    marginBottom: 8,
-  },
-  formStatus: {
-    fontSize: 12,
-    color: '#888',
-    textTransform: 'uppercase',
-    fontWeight: '500',
+    fontSize: 16,
+    color: '#718096',
+    marginBottom: 24,
+    lineHeight: 22,
   },
   startButton: {
-    marginLeft: 'auto',
+    backgroundColor: '#0066CC',
+    borderRadius: 12,
+    paddingVertical: 4,
+  },
+  startButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   emptyCard: {
-    padding: 20,
+    padding: 24,
+    borderRadius: 16,
+    marginBottom: 20,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#666',
+    color: '#718096',
     fontSize: 16,
-  },
-  infoSection: {
-    padding: 16,
-    paddingTop: 0,
   },
   infoCard: {
-    backgroundColor: '#e8f4fd',
+    backgroundColor: '#EBF8FF',
+    borderRadius: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0066CC',
   },
   infoTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#1976d2',
+    marginBottom: 12,
+    color: '#1A202C',
   },
   infoText: {
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
+    fontSize: 15,
+    color: '#4A5568',
+    lineHeight: 22,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F8FAFC',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#666',
+    color: '#718096',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#F8FAFC',
   },
   errorText: {
     fontSize: 18,
-    color: '#e74c3c',
+    color: '#E53E3E',
     textAlign: 'center',
     marginBottom: 16,
   },
   retryButton: {
-    marginTop: 8,
+    backgroundColor: '#0066CC',
+    borderRadius: 12,
   },
 });
 

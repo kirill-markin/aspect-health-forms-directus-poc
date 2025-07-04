@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Button, Card } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -27,19 +28,22 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
         return {
           title: 'Thank you for your responses',
           message: 'Based on your answers, we recommend following up with a healthcare provider. Our team will be in touch soon.',
-          color: '#e74c3c'
+          emoji: '🩺',
+          color: '#E53E3E'
         };
       case 'incomplete':
         return {
           title: 'Form Incomplete',
           message: 'It looks like you didn\'t complete all required questions. You can continue where you left off.',
-          color: '#f39c12'
+          emoji: '⚠️',
+          color: '#F56500'
         };
       default:
         return {
           title: 'Thank you!',
           message: 'Your health survey has been completed successfully. We appreciate your time and feedback.',
-          color: '#2ecc71'
+          emoji: '✅',
+          color: '#38A169'
         };
     }
   };
@@ -56,43 +60,56 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content style={styles.content}>
-          <Text style={[styles.title, { color: successInfo.color }]}>
-            {successInfo.title}
-          </Text>
-          
-          <Text style={styles.message}>
-            {successInfo.message}
-          </Text>
-          
-          {exitKey === 'high_risk' && (
-            <View style={styles.warningContainer}>
-              <Text style={styles.warningText}>
-                Important: If you are experiencing a medical emergency, please call 911 or go to the nearest emergency room immediately.
-              </Text>
-            </View>
-          )}
-          
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              onPress={handleRestart}
-              style={styles.button}
-            >
-              Take Another Survey
-            </Button>
+      <LinearGradient
+        colors={['#0066CC', '#4A90E2']}
+        style={styles.header}
+      >
+        <Text style={styles.headerTitle}>Survey Complete</Text>
+      </LinearGradient>
+
+      <View style={styles.content}>
+        <Card style={styles.card}>
+          <Card.Content style={styles.cardContent}>
+            <Text style={styles.emoji}>{successInfo.emoji}</Text>
             
-            <Button
-              mode="outlined"
-              onPress={handleReturnToApp}
-              style={styles.button}
-            >
-              Return to App
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
+            <Text style={[styles.title, { color: successInfo.color }]}>
+              {successInfo.title}
+            </Text>
+            
+            <Text style={styles.message}>
+              {successInfo.message}
+            </Text>
+            
+            {exitKey === 'high_risk' && (
+              <View style={styles.warningContainer}>
+                <Text style={styles.warningText}>
+                  Important: If you are experiencing a medical emergency, please call 911 or go to the nearest emergency room immediately.
+                </Text>
+              </View>
+            )}
+          </Card.Content>
+        </Card>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="contained"
+            onPress={handleRestart}
+            style={styles.primaryButton}
+            labelStyle={styles.primaryButtonLabel}
+          >
+            Take Another Survey
+          </Button>
+          
+          <Button
+            mode="outlined"
+            onPress={handleReturnToApp}
+            style={styles.secondaryButton}
+            labelStyle={styles.secondaryButtonLabel}
+          >
+            Return to Home
+          </Button>
+        </View>
+      </View>
     </View>
   );
 };
@@ -100,18 +117,42 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
-  card: {
-    width: '100%',
-    maxWidth: 400,
+  header: {
+    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   content: {
-    alignItems: 'center',
+    flex: 1,
     padding: 20,
+    justifyContent: 'center',
+  },
+  card: {
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginBottom: 32,
+  },
+  cardContent: {
+    alignItems: 'center',
+    padding: 32,
+  },
+  emoji: {
+    fontSize: 64,
+    marginBottom: 24,
   },
   title: {
     fontSize: 24,
@@ -124,27 +165,45 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
-    color: '#333',
+    color: '#4A5568',
   },
   warningContainer: {
-    backgroundColor: '#fff3cd',
+    backgroundColor: '#FFF5F5',
     padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
+    borderRadius: 12,
+    marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#ffc107',
+    borderLeftColor: '#E53E3E',
   },
   warningText: {
     fontSize: 14,
-    color: '#856404',
+    color: '#742A2A',
     fontWeight: '500',
+    lineHeight: 20,
   },
   buttonContainer: {
-    width: '100%',
-    gap: 12,
+    gap: 16,
   },
-  button: {
-    marginVertical: 4,
+  primaryButton: {
+    backgroundColor: '#0066CC',
+    borderRadius: 12,
+    paddingVertical: 4,
+  },
+  primaryButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  secondaryButton: {
+    borderColor: '#0066CC',
+    borderWidth: 2,
+    borderRadius: 12,
+    paddingVertical: 4,
+  },
+  secondaryButtonLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0066CC',
   },
 });
 

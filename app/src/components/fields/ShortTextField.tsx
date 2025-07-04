@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { Question } from '../../api/directus';
 
@@ -10,20 +11,59 @@ interface ShortTextFieldProps {
 
 const ShortTextField: React.FC<ShortTextFieldProps> = ({ question, value, onChange }) => {
   const settings = question.settings_json || {};
+  const [localValue, setLocalValue] = useState(value || '');
+  
+  // Update local value when external value changes
+  useEffect(() => {
+    setLocalValue(value || '');
+  }, [value]);
+  
+  // Handle text input change (local only)
+  const handleTextChange = (text: string) => {
+    setLocalValue(text);
+  };
+  
+  // Handle blur - save to external state
+  const handleBlur = () => {
+    if (localValue !== value) {
+      onChange(localValue);
+    }
+  };
   
   return (
-    <TextInput
-      mode="outlined"
-      label={question.label}
-      value={value || ''}
-      onChangeText={onChange}
-      placeholder={settings.placeholder || ''}
-      multiline={false}
-      autoCapitalize="sentences"
-      autoCorrect={true}
-      style={{ marginBottom: 16 }}
-    />
+    <View style={styles.container}>
+      <TextInput
+        mode="outlined"
+        value={localValue}
+        onChangeText={handleTextChange}
+        onBlur={handleBlur}
+        placeholder={settings.placeholder || 'Enter your answer...'}
+        multiline={false}
+        autoCapitalize="sentences"
+        autoCorrect={true}
+        style={styles.input}
+        outlineColor="#E2E8F0"
+        activeOutlineColor="#0066CC"
+        contentStyle={styles.inputContent}
+      />
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+  },
+  input: {
+    backgroundColor: '#F7FAFC',
+    borderRadius: 12,
+  },
+  inputContent: {
+    fontSize: 16,
+    color: '#1A202C',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+});
 
 export default ShortTextField;

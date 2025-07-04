@@ -6,6 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { directusClient, Form, FormVersion, Question, BranchingRule, Response, ResponseItem } from '../api/directus';
 import FormRenderer from '../components/FormRenderer';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -147,7 +148,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#0066CC" />
         <Text style={styles.loadingText}>Loading form...</Text>
       </View>
     );
@@ -170,13 +171,16 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#0066CC', '#4A90E2']}
+        style={styles.header}
+      >
         <Text style={styles.title}>{form.title}</Text>
         {form.description && (
           <Text style={styles.description}>{form.description}</Text>
         )}
-      </View>
+      </LinearGradient>
       
       <FormRenderer
         questions={questions}
@@ -189,48 +193,56 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
           user_segment: 'demo_user'
         }}
       />
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    marginBottom: 16,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 8,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 6,
   },
   description: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 22,
+    fontSize: 15,
+    color: '#E6F3FF',
+    textAlign: 'center',
+    lineHeight: 20,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F8FAFC',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    color: '#718096',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#F8FAFC',
   },
   errorText: {
     fontSize: 18,
-    color: '#e74c3c',
+    color: '#E53E3E',
     textAlign: 'center',
   },
 });
