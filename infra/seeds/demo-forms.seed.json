@@ -10,8 +10,7 @@
         "success": "https://example.com/success",
         "incomplete": "https://example.com/incomplete",
         "high_risk": "https://example.com/high-risk"
-      },
-      "active_version_id": "550e8400-e29b-41d4-a716-446655440001"
+      }
     }
   ],
   "form_versions": [

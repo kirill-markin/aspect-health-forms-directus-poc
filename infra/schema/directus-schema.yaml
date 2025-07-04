@@ -315,36 +315,6 @@ fields:
       has_auto_increment: false
 
   - collection: forms
-    field: active_version_id
-    type: uuid
-    meta:
-      collection: forms
-      field: active_version_id
-      special: [uuid]
-      interface: select-dropdown-m2o
-      options:
-        template: '{{version}} - {{label}}'
-      display: related-values
-      display_options:
-        template: '{{version}} - {{label}}'
-      readonly: false
-      hidden: false
-      sort: 6
-      width: full
-      required: false
-      note: Current published version
-    schema:
-      name: active_version_id
-      table: forms
-      data_type: uuid
-      is_nullable: true
-      is_unique: false
-      is_primary_key: false
-      has_auto_increment: false
-      foreign_key_column: id
-      foreign_key_table: form_versions
-
-  - collection: forms
     field: created_at
     type: timestamp
     meta:
@@ -1234,28 +1204,6 @@ fields:
       has_auto_increment: false
 
 relations:
-  - collection: forms
-    field: active_version_id
-    related_collection: form_versions
-    meta:
-      junction_field: null
-      many_collection: forms
-      many_field: active_version_id
-      one_allowed_collections: null
-      one_collection: form_versions
-      one_collection_field: null
-      one_deselect_action: nullify
-      one_field: null
-      sort_field: null
-    schema:
-      table: forms
-      column: active_version_id
-      foreign_key_table: form_versions
-      foreign_key_column: id
-      constraint_name: forms_active_version_id_foreign
-      on_update: CASCADE
-      on_delete: SET NULL
-
   - collection: form_versions
     field: form_id
     related_collection: forms

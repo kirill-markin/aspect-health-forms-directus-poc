@@ -54,6 +54,11 @@ check_dependencies() {
         print_warning "jq is not installed. Some operations may not work properly."
     fi
     
+    if ! command -v node &> /dev/null; then
+        print_error "Node.js is not installed. Please install Node.js first."
+        exit 1
+    fi
+    
     print_success "All dependencies are available"
 }
 
@@ -113,7 +118,7 @@ fix_permissions() {
     print_status "Configuring admin permissions..."
     
     # Wait a moment for schema to settle
-    sleep 2
+    sleep 5
     
     # Get authentication token
     local token
@@ -147,19 +152,81 @@ fix_permissions() {
         exit 1
     fi
     
-    # Update role to have admin access
+    # CRITICAL: Set admin_access = true on the Administrator role
+    # In Directus v11, this should provide unrestricted access to everything
+    print_status "Setting admin_access=true on Administrator role..."
     curl -s -X PATCH "http://localhost:8055/roles/$role_id" \
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
         -d '{"admin_access": true}' > /dev/null
     
-    # Update policy to have admin and app access
+    # Also ensure the policy has admin access
+    print_status "Setting admin_access=true on Administrator policy..."
     curl -s -X PATCH "http://localhost:8055/policies/$policy_id" \
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
         -d '{"admin_access": true, "app_access": true}' > /dev/null
     
-    print_success "Admin permissions configured"
+    # Run database migrations to ensure everything is up to date
+    # This is critical for Directus v11 policy-based access control
+    print_status "Running database migrations to ensure everything is up to date..."
+    docker exec aspect-health-forms-directus-poc-directus-1 npx directus database migrate:latest
+    
+    print_success "Administrator role configured with full admin access (Directus v11 policy-based)"
+    
+    # Try to refresh/apply the changes by restarting Directus service
+    print_status "Refreshing Directus to apply permission changes..."
+    docker restart aspect-health-forms-directus-poc-directus-1
+    
+    # Wait for Directus to be ready again
+    print_status "Waiting for Directus to restart and apply changes..."
+    local max_attempts=30
+    local attempt=0
+    
+    while [ $attempt -lt $max_attempts ]; do
+        if curl -s "http://localhost:8055/server/health" | grep -q "ok"; then
+            print_success "Directus restarted and ready with new permissions!"
+            break
+        fi
+        
+        attempt=$((attempt + 1))
+        echo -n "."
+        sleep 2
+    done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        print_error "Directus failed to restart within expected time"
+        exit 1
+    fi
+    
+    # Additional wait for permissions to fully propagate
+    print_status "Waiting for permissions to fully propagate..."
+    sleep 5
+}
+
+# Load seed data
+load_seed_data() {
+    print_status "Loading seed data using Directus SDK..."
+    
+    # Check if Node.js is available
+    if ! command -v node &> /dev/null; then
+        print_error "Node.js is not installed. Please install Node.js first."
+        return 1
+    fi
+    
+    # Check if the seed data script exists
+    if [ ! -f "./scripts/seed-data.js" ]; then
+        print_error "Seed data script not found: ./scripts/seed-data.js"
+        return 1
+    fi
+    
+    # Run the Node.js seed data script
+    if node ./scripts/seed-data.js; then
+        print_success "Seed data loaded successfully"
+    else
+        print_error "Failed to load seed data"
+        return 1
+    fi
 }
 
 # Verify the setup
@@ -186,6 +253,16 @@ verify_setup() {
         # Check if collections are accessible
         if curl -s -H "Authorization: Bearer $token" "http://localhost:8055/collections" | grep -q "forms"; then
             print_success "Collections are accessible"
+            
+            # Check if seed data was loaded
+            local forms_count
+            forms_count=$(curl -s -H "Authorization: Bearer $token" "http://localhost:8055/items/forms" | jq -r '.data | length' 2>/dev/null || echo "0")
+            
+            if [ "$forms_count" -gt 0 ]; then
+                print_success "Seed data verification: $forms_count forms loaded"
+            else
+                print_warning "No forms found in database - this might be normal if running for the first time"
+            fi
         else
             print_warning "Collections may not be accessible yet"
         fi
@@ -209,6 +286,7 @@ main() {
     bootstrap_database
     apply_schema
     fix_permissions
+    load_seed_data
     verify_setup
     
     echo -e "${GREEN}"
@@ -223,9 +301,9 @@ main() {
     echo ""
     echo -e "${BLUE}📋 Next steps:${NC}"
     echo "   1. Open the admin interface and explore the collections"
-    echo "   2. Create demo form data in the Forms collection"
+    echo "   2. Check the demo health survey form that was pre-loaded"
     echo "   3. Start the React Native app: cd app && npm start"
-    echo "   4. Test the complete form flow"
+    echo "   4. Test the complete form flow with demo data"
     echo ""
     echo -e "${BLUE}🗂️  Available Collections:${NC}"
     echo "   • Forms - Main form definitions"
@@ -235,6 +313,14 @@ main() {
     echo "   • Responses - User response sessions"
     echo "   • Response Items - Individual answers"
     echo "   • Branching Rules - Conditional logic"
+    echo ""
+    echo -e "${BLUE}📊 Demo Data Loaded:${NC}"
+    echo "   • Health Survey Demo form with 4 questions"
+    echo "   • Multiple choice question with 4 options (Excellent, Good, Fair, Poor)"
+    echo "   • Long text question for health concerns"
+    echo "   • NPS rating question for satisfaction"
+    echo "   • Short text question for contact info"
+    echo "   • 3 branching rules for conditional logic"
     echo ""
     echo -e "${YELLOW}💡 Tip: If you encounter permission issues, wait 30 seconds and refresh the admin interface.${NC}"
 }
