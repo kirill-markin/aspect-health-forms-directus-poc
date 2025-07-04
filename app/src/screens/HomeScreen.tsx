@@ -1,13 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Card, ActivityIndicator } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { directusClient, Form } from '../api/directus';
 
+type RootStackParamList = {
+  Home: undefined;
+  DemoForm: { formSlug: string };
+  Success: { exitKey?: string };
+};
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+
 interface HomeScreenProps {
-  onStartForm: (formSlug: string) => void;
+  navigation: HomeScreenNavigationProp;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onStartForm }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,21 +27,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStartForm }) => {
 
   const loadAvailableForms = async () => {
     try {
+      console.log('Starting to load forms...');
       setLoading(true);
       
       // For the POC, we'll hardcode the demo form
       // In a real app, you'd fetch all published forms
+      console.log('Fetching form with slug: demo-health-survey');
       const demoForm = await directusClient.getFormBySlug('demo-health-survey');
+      console.log('Form fetched:', demoForm);
       
       if (demoForm) {
         setForms([demoForm]);
+        console.log('Form loaded successfully');
       } else {
+        console.log('No form found');
         setError('No forms available');
       }
     } catch (err) {
       console.error('Error loading forms:', err);
-      setError('Failed to load forms');
+      setError('Failed to load forms: ' + (err as Error).message);
     } finally {
+      console.log('Loading complete');
       setLoading(false);
     }
   };
@@ -49,7 +64,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onStartForm }) => {
     // Store UTM parameters for form session
     // In a real app, you might want to use AsyncStorage or Redux
     
-    onStartForm(formSlug);
+    navigation.navigate('DemoForm', { formSlug });
   };
 
   if (loading) {

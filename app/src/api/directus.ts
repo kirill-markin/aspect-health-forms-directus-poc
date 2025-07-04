@@ -1,15 +1,54 @@
-import axios from 'axios';
+import { 
+  createDirectus, 
+  rest, 
+  authentication, 
+  readItems, 
+  readItem, 
+  createItem, 
+  updateItem 
+} from '@directus/sdk';
 
 const DIRECTUS_URL = process.env.EXPO_PUBLIC_DIRECTUS_URL || 'http://localhost:8055';
 
-// Create axios instance with base configuration
-const directusApi = axios.create({
-  baseURL: DIRECTUS_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+// Development credentials from environment variables
+const ADMIN_EMAIL = process.env.EXPO_PUBLIC_ADMIN_EMAIL || 'admin@example.com';
+const ADMIN_PASSWORD = process.env.EXPO_PUBLIC_ADMIN_PASSWORD || 'password123';
+
+// Debug environment variables
+console.log('Environment variables:');
+console.log('DIRECTUS_URL:', DIRECTUS_URL);
+console.log('ADMIN_EMAIL:', ADMIN_EMAIL);
+console.log('Environment check:', {
+  EXPO_PUBLIC_DIRECTUS_URL: process.env.EXPO_PUBLIC_DIRECTUS_URL,
+  EXPO_PUBLIC_ADMIN_EMAIL: process.env.EXPO_PUBLIC_ADMIN_EMAIL,
+  EXPO_PUBLIC_ADMIN_PASSWORD: process.env.EXPO_PUBLIC_ADMIN_PASSWORD ? '[SET]' : '[NOT SET]'
 });
+
+// Create Directus client (modern SDK v20+ pattern)
+const directus = createDirectus(DIRECTUS_URL)
+  .with(authentication('json', { autoRefresh: true }))
+  .with(rest());
+
+// Authentication state
+let isAuthenticated = false;
+
+// Helper function to ensure authentication (modern SDK pattern)
+const ensureAuthentication = async (): Promise<void> => {
+  if (!isAuthenticated) {
+    try {
+      console.log('Authenticating with Directus at:', DIRECTUS_URL);
+      console.log('Using credentials:', ADMIN_EMAIL, '/ [password hidden]');
+      
+      await directus.login({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+      
+      isAuthenticated = true;
+      console.log('Authentication successful');
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      throw new Error('Failed to authenticate with Directus');
+    }
+  }
+};
 
 // Types for the form data structures
 export interface Form {
@@ -84,20 +123,28 @@ export interface ResponseItem {
   value: any;
 }
 
-// API Functions
+// API Functions (modern SDK pattern)
 export const directusClient = {
   // Get published form by slug
   async getFormBySlug(slug: string): Promise<Form | null> {
     try {
-      const response = await directusApi.get(`/items/forms`, {
-        params: {
+      await ensureAuthentication();
+      
+      console.log('Getting form by slug:', slug);
+      const response = await directus.request(
+        readItems('forms', {
           filter: {
             slug: { _eq: slug },
             status: { _eq: 'published' }
-          }
-        }
-      });
-      return response.data.data[0] || null;
+          },
+          limit: 1
+        })
+      );
+      
+      console.log('Form API response:', response);
+      const form = (response?.[0] as Form) || null;
+      console.log('Form found:', form);
+      return form;
     } catch (error) {
       console.error('Error fetching form:', error);
       return null;
@@ -111,46 +158,57 @@ export const directusClient = {
     branchingRules: BranchingRule[];
   } | null> {
     try {
-      const [versionResponse, questionsResponse, rulesResponse] = await Promise.all([
-        directusApi.get(`/items/form_versions/${versionId}`),
-        directusApi.get(`/items/questions`, {
-          params: {
-            filter: { form_version_id: { _eq: versionId } },
-            sort: ['order']
-          }
-        }),
-        directusApi.get(`/items/branching_rules`, {
-          params: {
-            filter: { form_version_id: { _eq: versionId } },
-            sort: ['order']
-          }
+      await ensureAuthentication();
+      
+      console.log('Getting form version:', versionId);
+      
+      // Get form version
+      const versionResponse = await directus.request(readItem('form_versions', versionId)) as FormVersion;
+      console.log('Form version response:', versionResponse);
+      
+      // Get questions for this form version
+      const questionsResponse = await directus.request(
+        readItems('questions', {
+          filter: { form_version_id: { _eq: versionId } },
+          sort: ['order']
         })
-      ]);
+      ) as Question[];
+      console.log('Questions response:', questionsResponse);
+      
+      // Get branching rules for this form version
+      const rulesResponse = await directus.request(
+        readItems('branching_rules', {
+          filter: { form_version_id: { _eq: versionId } },
+          sort: ['order']
+        })
+      ) as BranchingRule[];
+      console.log('Branching rules response:', rulesResponse);
 
       // Get question choices for multiple choice questions
-      const questionIds = questionsResponse.data.data.map((q: Question) => q.id);
+      const questionIds = questionsResponse?.map((q: Question) => q.id) || [];
       let choices: QuestionChoice[] = [];
       
       if (questionIds.length > 0) {
-        const choicesResponse = await directusApi.get(`/items/question_choices`, {
-          params: {
+        const choicesResponse = await directus.request(
+          readItems('question_choices', {
             filter: { question_id: { _in: questionIds } },
             sort: ['order']
-          }
-        });
-        choices = choicesResponse.data.data;
+          })
+        ) as QuestionChoice[];
+        choices = choicesResponse || [];
+        console.log('Question choices response:', choicesResponse);
       }
 
       // Attach choices to their respective questions
-      const questionsWithChoices = questionsResponse.data.data.map((question: Question) => ({
+      const questionsWithChoices = (questionsResponse || []).map((question: Question) => ({
         ...question,
         choices: choices.filter(choice => choice.question_id === question.id)
       }));
 
       return {
-        version: versionResponse.data.data,
+        version: versionResponse,
         questions: questionsWithChoices,
-        branchingRules: rulesResponse.data.data
+        branchingRules: rulesResponse || []
       };
     } catch (error) {
       console.error('Error fetching form version:', error);
@@ -161,16 +219,23 @@ export const directusClient = {
   // Create a new response session
   async createResponse(formVersionId: string, userId: string, utmParams?: Record<string, any>): Promise<Response | null> {
     try {
-      const response = await directusApi.post(`/items/responses`, {
-        form_version_id: formVersionId,
-        user_id: userId,
-        status: 'draft',
-        started_at: new Date().toISOString(),
-        progress_pct: 0,
-        utm_json: utmParams || {},
-        hidden_json: {}
-      });
-      return response.data.data;
+      await ensureAuthentication();
+      
+      console.log('Creating response for form version:', formVersionId);
+      const response = await directus.request(
+        createItem('responses', {
+          form_version_id: formVersionId,
+          user_id: userId,
+          status: 'draft',
+          started_at: new Date().toISOString(),
+          progress_pct: 0,
+          utm_json: utmParams || {},
+          hidden_json: {}
+        })
+      ) as Response;
+      
+      console.log('Response created:', response);
+      return response;
     } catch (error) {
       console.error('Error creating response:', error);
       return null;
@@ -180,11 +245,18 @@ export const directusClient = {
   // Save answer to a question
   async saveAnswer(responseId: string, questionId: string, value: any): Promise<boolean> {
     try {
-      await directusApi.post(`/items/response_items`, {
-        response_id: responseId,
-        question_id: questionId,
-        value: value
-      });
+      await ensureAuthentication();
+      
+      console.log('Saving answer:', { responseId, questionId, value });
+      await directus.request(
+        createItem('response_items', {
+          response_id: responseId,
+          question_id: questionId,
+          value: value
+        })
+      );
+      
+      console.log('Answer saved successfully');
       return true;
     } catch (error) {
       console.error('Error saving answer:', error);
@@ -195,7 +267,12 @@ export const directusClient = {
   // Update response status and progress
   async updateResponse(responseId: string, updates: Partial<Response>): Promise<boolean> {
     try {
-      await directusApi.patch(`/items/responses/${responseId}`, updates);
+      await ensureAuthentication();
+      
+      console.log('Updating response:', { responseId, updates });
+      await directus.request(updateItem('responses', responseId, updates));
+      
+      console.log('Response updated successfully');
       return true;
     } catch (error) {
       console.error('Error updating response:', error);
@@ -206,11 +283,18 @@ export const directusClient = {
   // Complete response
   async completeResponse(responseId: string): Promise<boolean> {
     try {
-      await directusApi.patch(`/items/responses/${responseId}`, {
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        progress_pct: 100
-      });
+      await ensureAuthentication();
+      
+      console.log('Completing response:', responseId);
+      await directus.request(
+        updateItem('responses', responseId, {
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          progress_pct: 100
+        })
+      );
+      
+      console.log('Response completed successfully');
       return true;
     } catch (error) {
       console.error('Error completing response:', error);

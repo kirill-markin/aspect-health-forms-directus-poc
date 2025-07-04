@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Text, ActivityIndicator } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { directusClient, Form, FormVersion, Question, BranchingRule, Response, ResponseItem } from '../api/directus';
 import FormRenderer from '../components/FormRenderer';
 
-const DemoFormScreen: React.FC = () => {
+type RootStackParamList = {
+  Home: undefined;
+  DemoForm: { formSlug: string };
+  Success: { exitKey?: string };
+};
+
+type DemoFormScreenNavigationProp = StackNavigationProp<RootStackParamList, 'DemoForm'>;
+type DemoFormScreenRouteProp = RouteProp<RootStackParamList, 'DemoForm'>;
+
+interface DemoFormScreenProps {
+  navigation: DemoFormScreenNavigationProp;
+  route: DemoFormScreenRouteProp;
+}
+
+const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<Form | null>(null);
   const [formVersion, setFormVersion] = useState<FormVersion | null>(null);
@@ -122,20 +138,8 @@ const DemoFormScreen: React.FC = () => {
       // Mark response as completed
       await directusClient.completeResponse(response.id);
       
-      // Handle exit logic
-      if (exitKey && form?.exit_map?.[exitKey]) {
-        Alert.alert(
-          'Form Completed',
-          `Thank you for completing the form! Redirecting to: ${form.exit_map[exitKey]}`,
-          [{ text: 'OK', onPress: () => console.log('Redirect to:', form.exit_map?.[exitKey]) }]
-        );
-      } else {
-        Alert.alert(
-          'Form Completed',
-          'Thank you for completing the health survey!',
-          [{ text: 'OK', onPress: () => console.log('Form completed successfully') }]
-        );
-      }
+      // Navigate to success screen
+      navigation.navigate('Success', { exitKey });
     } catch (err) {
       console.error('Error completing form:', err);
       Alert.alert('Error', 'Failed to complete form');

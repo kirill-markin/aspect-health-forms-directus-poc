@@ -1,13 +1,26 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button, Card } from 'react-native-paper';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  Home: undefined;
+  DemoForm: { formSlug: string };
+  Success: { exitKey?: string };
+};
+
+type SuccessScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Success'>;
+type SuccessScreenRouteProp = RouteProp<RootStackParamList, 'Success'>;
 
 interface SuccessScreenProps {
-  exitKey?: string;
-  onRestart?: () => void;
+  navigation: SuccessScreenNavigationProp;
+  route: SuccessScreenRouteProp;
 }
 
-const SuccessScreen: React.FC<SuccessScreenProps> = ({ exitKey, onRestart }) => {
+const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
+  const { exitKey } = route.params || {};
+
   const getSuccessMessage = () => {
     switch (exitKey) {
       case 'high_risk':
@@ -29,6 +42,14 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ exitKey, onRestart }) => 
           color: '#2ecc71'
         };
     }
+  };
+
+  const handleRestart = () => {
+    navigation.navigate('DemoForm', { formSlug: 'demo-health-survey' });
+  };
+
+  const handleReturnToApp = () => {
+    navigation.navigate('Home');
   };
 
   const successInfo = getSuccessMessage();
@@ -54,19 +75,17 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ exitKey, onRestart }) => 
           )}
           
           <View style={styles.buttonContainer}>
-            {onRestart && (
-              <Button
-                mode="contained"
-                onPress={onRestart}
-                style={styles.button}
-              >
-                Take Another Survey
-              </Button>
-            )}
+            <Button
+              mode="contained"
+              onPress={handleRestart}
+              style={styles.button}
+            >
+              Take Another Survey
+            </Button>
             
             <Button
               mode="outlined"
-              onPress={() => console.log('Navigate to app home')}
+              onPress={handleReturnToApp}
               style={styles.button}
             >
               Return to App
