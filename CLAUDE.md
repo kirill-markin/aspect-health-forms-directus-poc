@@ -23,29 +23,29 @@ Key architectural patterns:
 
 ### Environment Setup
 ```bash
-# Start complete development environment
-./scripts/dev-up.sh
+# Complete automated setup from scratch (recommended)
+./scripts/setup-complete-schema.sh
 
-# Reset everything (deletes all data)
-./scripts/reset.sh
+# Just restart containers without losing data
+docker-compose restart
 
 # Stop environment
 docker-compose down
+
+# Reset everything (deletes all data)
+docker-compose down -v
 ```
 
 ### Schema Management
 ```bash
-# Install Directus CLI (required for schema operations)
-npm install -g directus
+# Export current schema from running Directus instance
+docker exec -it aspect-health-forms-directus-poc-directus-1 npx directus schema snapshot /tmp/current-schema.yaml
 
-# Apply schema to running Directus instance
-./infra/ci/apply.sh
+# Copy exported schema out for inspection
+docker cp aspect-health-forms-directus-poc-directus-1:/tmp/current-schema.yaml ./tmp/
 
-# Export current schema from Directus
-./infra/ci/snapshot.sh
-
-# Run migrations and seed data (manual process)
-./infra/ci/migrate.sh
+# Update the main schema file with changes (if needed)
+cp ./tmp/current-schema.yaml ./infra/schema/directus-schema.yaml
 ```
 
 ### React Native Development
@@ -79,6 +79,17 @@ The form system uses a **versioned, relational architecture**:
 4. **Form Versions** → **Branching Rules** (1:many) - Conditional logic
 5. **Form Versions** → **Responses** (1:many) - User sessions
 6. **Responses** → **Response Items** (1:many) - Individual answers
+
+### Collections and Fields Created
+The automated setup creates these collections with complete field definitions:
+
+- **Forms** - Main form definitions (id, slug, title, description, status, active_version_id, created_at, updated_at)
+- **Form Versions** - Immutable form versions (id, form_id, version, label, created_at)
+- **Questions** - Individual questions (id, form_version_id, uid, label, type, required, order)
+- **Question Choices** - Multiple choice options (id, question_id, label, value, order)
+- **Responses** - User response sessions (id, form_version_id, user_id, status, created_at, completed_at)
+- **Response Items** - Individual answers (id, response_id, question_uid, value)
+- **Branching Rules** - Conditional logic (id, form_version_id, question_uid, operator, value, target_question_uid, order)
 
 ### Question Types Supported
 - `short_text` - Single line text input
@@ -121,9 +132,14 @@ Branching rules support:
 
 ### Making Schema Changes
 1. Modify collections in Directus admin interface
-2. Export schema: `./infra/ci/snapshot.sh`
+2. Export schema: 
+   ```bash
+   docker exec -it aspect-health-forms-directus-poc-directus-1 npx directus schema snapshot /tmp/current-schema.yaml
+   docker cp aspect-health-forms-directus-poc-directus-1:/tmp/current-schema.yaml ./tmp/
+   cp ./tmp/current-schema.yaml ./infra/schema/directus-schema.yaml
+   ```
 3. Commit updated `directus-schema.yaml`
-4. Other developers apply with: `./infra/ci/apply.sh`
+4. Other developers apply with: `./scripts/setup-complete-schema.sh`
 
 ### Adding New Question Types
 1. Add type to TypeScript union in `app/src/api/directus.ts`
@@ -147,9 +163,10 @@ The `BranchingEngine` class handles all conditional logic. Key methods:
 ## Troubleshooting Common Issues
 
 ### Schema Application Fails
-- Ensure Directus CLI installed: `npm install -g directus`
+- Run the complete setup script: `./scripts/setup-complete-schema.sh`
 - Verify Directus running: `curl http://localhost:8055/server/health`
-- Try manual collection creation in Directus admin
+- Check logs: `docker-compose logs directus`
+- If persistent issues, try manual collection creation in Directus admin
 
 ### React Native Connection Issues
 - Check `app/.env` contains correct Directus URL
@@ -159,7 +176,7 @@ The `BranchingEngine` class handles all conditional logic. Key methods:
 ### Docker Environment Issues
 - Check container status: `docker-compose ps`
 - View logs: `docker-compose logs directus`
-- Reset if corrupted: `./scripts/reset.sh && ./scripts/dev-up.sh`
+- Reset if corrupted: `./scripts/setup-complete-schema.sh`
 
 ## Demo Data Structure
 

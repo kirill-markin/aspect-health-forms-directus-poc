@@ -25,99 +25,32 @@ This POC showcases:
 
 ### Prerequisites
 
-#### System Requirements
 - **Docker & Docker Compose** - for running Directus and PostgreSQL
 - **Node.js 18+** - for React Native development
-- **npm or yarn** - package manager
+- **Expo CLI** (recommended): `npm install -g @expo/cli`
 
-#### React Native Environment Setup
-Choose one of the following options:
+### 🚀 One-Command Setup
 
-**Option A: Expo CLI (Recommended for POC)**
-```bash
-npm install -g @expo/cli
-```
-
-**Option B: React Native CLI (for native development)**
-```bash
-npm install -g @react-native-community/cli
-# Also requires Xcode (iOS) and/or Android Studio
-```
-
-### 🚀 Complete Setup Guide
-
-### Step 1: Start Development Environment
+Set up the entire POC from scratch:
 
 ```bash
-# Clone the repository (if not already done)
-git clone <repository-url>
-cd aspect-health-forms-directus-poc
-
-# Start Directus + PostgreSQL containers
-./scripts/dev-up.sh
+./scripts/setup-complete-schema.sh
 ```
 
-**Expected Output:**
-- ✅ Docker containers running
-- ✅ Directus available at http://localhost:8055
-- ✅ Admin credentials displayed
+This automated script will:
+1. 🧹 Clean up any existing containers and volumes
+2. 🚀 Start fresh Docker containers (Directus + PostgreSQL)
+3. 🔧 Bootstrap the database
+4. 📋 Apply the complete forms schema with all collections and fields
+5. 🔐 Configure admin permissions
+6. ✅ Verify everything is working
 
-### Step 2: Set Up Database Schema
+**After setup completes:**
+- 📱 **Directus Admin**: http://localhost:8055/admin/
+- 🔑 **Login**: admin@example.com / password123
+- All collections will be ready with proper fields and permissions
 
-#### Option A: Using Directus CLI (Recommended)
-
-```bash
-# Install Directus CLI globally
-npm install -g directus
-
-# Apply the schema
-./infra/ci/apply.sh
-```
-
-#### Option B: Manual Schema Setup (if CLI fails)
-
-1. Open Directus admin: http://localhost:8055
-2. Login with:
-   - **Email**: `admin@example.com`
-   - **Password**: `password123`
-3. Go to **Settings** → **Data Model**
-4. Create collections manually (see schema structure below)
-
-**Verify Schema Applied:**
-- Go to **Content** in Directus admin
-- You should see: `forms`, `form_versions`, `questions`, etc.
-
-### Step 3: Import Demo Data
-
-#### Method A: Using Data Studio (Recommended)
-
-1. In Directus admin, go to **Content** → **Forms**
-2. Click **Create Item** (+) button
-3. Enter the following demo form data:
-
-```json
-{
-  "slug": "demo-health-survey",
-  "title": "Health Survey Demo",
-  "description": "A demonstration health survey form with conditional logic",
-  "status": "published"
-}
-```
-
-4. Create questions, choices, and branching rules following the demo data structure
-
-#### Method B: Import JSON (Advanced)
-
-1. Go to **Settings** → **Data Model** → **Import/Export**
-2. Import the file: `./infra/seeds/demo-forms.seed.json`
-3. Verify collections are populated
-
-**Verify Demo Data:**
-- Check **Content** → **Forms** - should have "Health Survey Demo"
-- Check **Content** → **Questions** - should have 4 questions
-- Check **Content** → **Branching Rules** - should have conditional logic
-
-### Step 4: Configure React Native App
+### Start the React Native App
 
 ```bash
 cd app
@@ -125,44 +58,24 @@ cd app
 # Install dependencies
 npm install
 
-# Create environment configuration (create .env file in app/ directory)
+# Create environment configuration
 echo "EXPO_PUBLIC_DIRECTUS_URL=http://localhost:8055" > .env
-```
 
-### Step 5: Start React Native App
-
-```bash
 # Start the development server
 npm start
-
-# Choose your platform:
-# - Press 'w' for web (easiest for testing)
-# - Press 'i' for iOS simulator
-# - Press 'a' for Android emulator
-# - Scan QR code with Expo Go app on your phone
 ```
 
-**Expected Result:**
-- App opens showing "Aspect Health Forms" home screen
-- "Health Survey Demo" form should be available
-- Tapping "Start Form" begins the demo questionnaire
+**Choose your platform:**
+- Press `w` for web (easiest for testing)
+- Press `i` for iOS simulator
+- Press `a` for Android emulator
+- Scan QR code with Expo Go app on your phone
 
-### 🧪 Testing the Complete Flow
+### 🧪 Test the Complete Flow
 
-1. **Directus Admin Test:**
-   - Navigate to http://localhost:8055
-   - Login and browse the form data
-   - Try editing a question or adding a new one
-
-2. **React Native App Test:**
-   - Open the mobile app
-   - Complete the health survey
-   - Verify conditional logic works (different questions based on answers)
-
-3. **Data Flow Test:**
-   - Submit a form response in the mobile app
-   - Check **Content** → **Responses** in Directus admin
-   - Verify the response data was saved
+1. **Admin Interface**: Explore collections at http://localhost:8055/admin/
+2. **Mobile App**: Complete the health survey demo
+3. **Data Verification**: Check responses saved in Directus admin
 
 ## ✅ Setup Validation Checklist
 
@@ -297,20 +210,17 @@ await directusClient.saveAnswer(response.id, 'question_uid', value);
 ## Development Commands
 
 ```bash
-# Start development environment
-./scripts/dev-up.sh
+# Full setup from scratch (recommended)
+./scripts/setup-complete-schema.sh
+
+# Just restart without losing data
+docker-compose restart
 
 # Stop environment
 docker-compose down
 
-# Reset everything (deletes all data!)
-./scripts/reset.sh
-
-# Export current schema
-./infra/ci/snapshot.sh
-
-# Apply schema changes
-./infra/ci/apply.sh
+# Reset everything (deletes all data)
+docker-compose down -v
 ```
 
 ## Configuration
