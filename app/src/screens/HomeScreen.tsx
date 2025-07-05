@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, ImageBackground } from 'react-native';
-import { Text, Button, Card, ActivityIndicator } from 'react-native-paper';
+import { Text, Button, Card, ActivityIndicator } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { directusClient, Form } from '../api/directus';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -72,7 +72,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0066CC" />
-        <Text style={styles.loadingText}>Loading available forms...</Text>
+        <Text variant="body" color="#718096" style={styles.loadingText}>Loading available forms...</Text>
       </View>
     );
   }
@@ -80,10 +80,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <Button mode="contained" onPress={loadAvailableForms} style={styles.retryButton}>
-          Retry
-        </Button>
+        <Text variant="body" color="#E53E3E" style={styles.errorText}>{error}</Text>
+        <Button variant="primary" title="Retry" onPress={loadAvailableForms} style={styles.retryButton} />
       </View>
     );
   }
@@ -94,9 +92,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         colors={['#0066CC', '#4A90E2']}
         style={styles.header}
       >
-        <Text style={styles.title}>Welcome to</Text>
-        <Text style={styles.titleBold}>Aspect</Text>
-        <Text style={styles.subtitle}>
+        <Text variant="h2" color="#FFFFFF" style={styles.title}>Welcome to</Text>
+        <Text variant="h1" color="#FFFFFF" style={styles.titleBold}>Aspect</Text>
+        <Text variant="body" color="#E6F3FF" style={styles.subtitle}>
           Complete health surveys and assessments to help us provide better care
         </Text>
       </LinearGradient>
@@ -104,41 +102,35 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <View style={styles.content}>
         {forms.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <Card.Content>
-              <Text style={styles.emptyText}>No forms available at the moment</Text>
-            </Card.Content>
+            <Text variant="body" color="#718096" style={styles.emptyText}>No forms available at the moment</Text>
           </Card>
         ) : (
           forms.map((form) => (
             <Card key={form.id} style={styles.formCard}>
-              <Card.Content style={styles.formContent}>
-                <Text style={styles.formTitle}>{form.title}</Text>
+              <View style={styles.formContent}>
+                <Text variant="h3" color="#1A202C" style={styles.formTitle}>{form.title}</Text>
                 {form.description && (
-                  <Text style={styles.formDescription}>{form.description}</Text>
+                  <Text variant="body" color="#718096" style={styles.formDescription}>{form.description}</Text>
                 )}
                 
                 <Button
-                  mode="contained"
+                  variant="primary"
+                  title="Start Survey"
                   onPress={() => handleStartForm(form.slug)}
                   style={styles.startButton}
-                  labelStyle={styles.startButtonLabel}
-                >
-                  Start Survey
-                </Button>
-              </Card.Content>
+                />
+              </View>
             </Card>
           ))
         )}
 
         <Card style={styles.infoCard}>
-          <Card.Content>
-            <Text style={styles.infoTitle}>📋 About Health Forms</Text>
-            <Text style={styles.infoText}>
-              Your responses help us understand your health needs better and provide 
-              personalized care recommendations. All information is kept confidential 
-              and secure.
-            </Text>
-          </Card.Content>
+          <Text variant="h3" color="#1A202C" style={styles.infoTitle}>📋 About Health Forms</Text>
+          <Text variant="body" color="#4A5568" style={styles.infoText}>
+            Your responses help us understand your health needs better and provide 
+            personalized care recommendations. All information is kept confidential 
+            and secure.
+          </Text>
         </Card>
       </View>
     </ScrollView>

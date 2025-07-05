@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text } from '../ui';
 import { Question, QuestionChoice } from '../../api/directus';
 
 interface MultipleChoiceFieldProps {
@@ -31,10 +31,14 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
             ]}>
               {isSelected && <View style={styles.radioDot} />}
             </View>
-            <Text style={[
-              styles.choiceText,
-              isSelected && styles.selectedChoiceText
-            ]}>
+            <Text 
+              variant="body" 
+              color={isSelected ? '#1A202C' : '#4A5568'}
+              style={[
+                styles.choiceText,
+                isSelected && styles.selectedChoiceText
+              ]}
+            >
               {choice.label}
             </Text>
           </TouchableOpacity>

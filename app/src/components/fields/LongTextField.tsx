@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import { TextInput } from '../ui';
 import { Question } from '../../api/directus';
 
 interface LongTextFieldProps {
@@ -33,7 +33,7 @@ const LongTextField: React.FC<LongTextFieldProps> = ({ question, value, onChange
   return (
     <View style={styles.container}>
       <TextInput
-        mode="outlined"
+        variant="outlined"
         value={localValue}
         onChangeText={handleTextChange}
         onBlur={handleBlur}
@@ -43,9 +43,6 @@ const LongTextField: React.FC<LongTextFieldProps> = ({ question, value, onChange
         autoCapitalize="sentences"
         autoCorrect={true}
         style={styles.input}
-        outlineColor="#E2E8F0"
-        activeOutlineColor="#0066CC"
-        contentStyle={styles.inputContent}
       />
     </View>
   );
@@ -57,14 +54,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#F7FAFC',
-    borderRadius: 12,
     minHeight: 120,
-  },
-  inputContent: {
-    fontSize: 16,
-    color: '#1A202C',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
   },
 });
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
-import { Text, ActivityIndicator } from 'react-native-paper';
+import { Text, ActivityIndicator } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -149,7 +149,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0066CC" />
-        <Text style={styles.loadingText}>Loading form...</Text>
+        <Text variant="body" color="#718096" style={styles.loadingText}>Loading form...</Text>
       </View>
     );
   }
@@ -157,7 +157,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+        <Text variant="body" color="#E53E3E" style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -165,7 +165,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (!form || !formVersion || questions.length === 0) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Form configuration error</Text>
+        <Text variant="body" color="#E53E3E" style={styles.errorText}>Form configuration error</Text>
       </View>
     );
   }
@@ -176,9 +176,9 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
         colors={['#0066CC', '#4A90E2']}
         style={styles.header}
       >
-        <Text style={styles.title}>{form.title}</Text>
+        <Text variant="h3" color="#FFFFFF" style={styles.title}>{form.title}</Text>
         {form.description && (
-          <Text style={styles.description}>{form.description}</Text>
+          <Text variant="body" color="#E6F3FF" style={styles.description}>{form.description}</Text>
         )}
       </LinearGradient>
       

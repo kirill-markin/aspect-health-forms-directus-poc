@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import { View, StyleSheet, Alert } from 'react-native';
+import { Text, Button, Card } from './ui';
 import { Question, ResponseItem, BranchingRule } from '../api/directus';
 import BranchingEngine from '../utils/branching';
 import ShortTextField from './fields/ShortTextField';
@@ -191,7 +191,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       
       default:
         return (
-          <Text style={styles.errorText}>
+          <Text variant="body" color="#E53E3E" style={styles.errorText}>
             Unsupported question type: {currentQuestion.type}
           </Text>
         );
@@ -201,7 +201,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
   if (!currentQuestion) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading form...</Text>
+        <Text variant="body" color="#718096" style={styles.loadingText}>Loading form...</Text>
       </View>
     );
   }
@@ -211,14 +211,14 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       <CustomProgressBar progress={getProgress()} />
       
       <Card style={styles.questionCard}>
-        <Card.Content style={styles.questionContent}>
-          <Text style={styles.questionNumber}>
+        <View style={styles.questionContent}>
+          <Text variant="small" color="#718096" style={styles.questionNumber}>
             Question {currentQuestionIndex + 1} of {questions.length}
           </Text>
           
-          <Text style={styles.questionText}>
+          <Text variant="h3" color="#1A202C" style={styles.questionText}>
             {currentQuestion.label}
-            {currentQuestion.required && <Text style={styles.required}> *</Text>}
+            {currentQuestion.required && <Text variant="h3" color="#E53E3E"> *</Text>}
           </Text>
           
           <View style={styles.fieldContainer}>
@@ -228,29 +228,25 @@ const FormRenderer: React.FC<FormRendererProps> = ({
           {/* Next button positioned under the form values */}
           <View style={styles.nextButtonContainer}>
             <Button
-              mode="contained"
+              variant="primary"
+              title={currentQuestionIndex === questions.length - 1 ? 'Complete' : 'Next'}
               onPress={handleNext}
               disabled={!canProceed}
               style={styles.nextButton}
-              labelStyle={styles.nextButtonLabel}
-            >
-              {currentQuestionIndex === questions.length - 1 ? 'Complete' : 'Next'}
-            </Button>
+            />
           </View>
-        </Card.Content>
+        </View>
       </Card>
       
       {/* Back button at the bottom */}
       {currentQuestionIndex > 0 && (
         <View style={styles.backButtonContainer}>
           <Button
-            mode="text"
+            variant="text"
+            title="← Back"
             onPress={handleBack}
             style={styles.backButton}
-            labelStyle={styles.backButtonLabel}
-          >
-            ← Back
-          </Button>
+          />
         </View>
       )}
     </View>

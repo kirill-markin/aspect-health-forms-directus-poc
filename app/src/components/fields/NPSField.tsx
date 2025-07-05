@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text } from '../ui';
 import { Question } from '../../api/directus';
 
 interface NPSFieldProps {
@@ -29,10 +29,14 @@ const NPSField: React.FC<NPSFieldProps> = ({ question, value, onChange }) => {
             isSelected && styles.selectedButton
           ]}
         >
-          <Text style={[
-            styles.buttonText,
-            isSelected && styles.selectedButtonText
-          ]}>
+          <Text 
+            variant="body" 
+            color={isSelected ? '#FFFFFF' : '#4A5568'}
+            style={[
+              styles.buttonText,
+              isSelected && styles.selectedButtonText
+            ]}
+          >
             {i}
           </Text>
         </TouchableOpacity>
@@ -48,8 +52,8 @@ const NPSField: React.FC<NPSFieldProps> = ({ question, value, onChange }) => {
       </View>
       
       <View style={styles.labelContainer}>
-        <Text style={styles.minLabel}>{minLabel}</Text>
-        <Text style={styles.maxLabel}>{maxLabel}</Text>
+        <Text variant="small" color="#718096" style={styles.minLabel}>{minLabel}</Text>
+        <Text variant="small" color="#718096" style={styles.maxLabel}>{maxLabel}</Text>
       </View>
     </View>
   );

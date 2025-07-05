@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Button, Card } from 'react-native-paper';
+import { Text, Button, Card } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -64,50 +64,46 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
         colors={['#0066CC', '#4A90E2']}
         style={styles.header}
       >
-        <Text style={styles.headerTitle}>Survey Complete</Text>
+        <Text variant="h2" color="#FFFFFF" style={styles.headerTitle}>Survey Complete</Text>
       </LinearGradient>
 
       <View style={styles.content}>
         <Card style={styles.card}>
-          <Card.Content style={styles.cardContent}>
-            <Text style={styles.emoji}>{successInfo.emoji}</Text>
+          <View style={styles.cardContent}>
+            <Text variant="h1" style={styles.emoji}>{successInfo.emoji}</Text>
             
-            <Text style={[styles.title, { color: successInfo.color }]}>
+            <Text variant="h2" color={successInfo.color} style={styles.title}>
               {successInfo.title}
             </Text>
             
-            <Text style={styles.message}>
+            <Text variant="body" color="#4A5568" style={styles.message}>
               {successInfo.message}
             </Text>
             
             {exitKey === 'high_risk' && (
               <View style={styles.warningContainer}>
-                <Text style={styles.warningText}>
+                <Text variant="small" color="#742A2A" style={styles.warningText}>
                   Important: If you are experiencing a medical emergency, please call 911 or go to the nearest emergency room immediately.
                 </Text>
               </View>
             )}
-          </Card.Content>
+          </View>
         </Card>
 
         <View style={styles.buttonContainer}>
           <Button
-            mode="contained"
+            variant="primary"
+            title="Take Another Survey"
             onPress={handleRestart}
             style={styles.primaryButton}
-            labelStyle={styles.primaryButtonLabel}
-          >
-            Take Another Survey
-          </Button>
+          />
           
           <Button
-            mode="outlined"
+            variant="secondary"
+            title="Return to Home"
             onPress={handleReturnToApp}
             style={styles.secondaryButton}
-            labelStyle={styles.secondaryButtonLabel}
-          >
-            Return to Home
-          </Button>
+          />
         </View>
       </View>
     </View>
