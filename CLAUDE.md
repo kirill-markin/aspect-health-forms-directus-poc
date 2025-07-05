@@ -24,7 +24,7 @@ Key architectural patterns:
 ### Environment Setup
 ```bash
 # Complete automated setup from scratch (recommended)
-./scripts/setup-complete-schema.sh
+./scripts/setup.sh
 
 # Just restart containers without losing data
 docker-compose restart
@@ -139,7 +139,7 @@ Branching rules support:
    cp ./tmp/current-schema.yaml ./infra/schema/directus-schema.yaml
    ```
 3. Commit updated `directus-schema.yaml`
-4. Other developers apply with: `./scripts/setup-complete-schema.sh`
+4. Other developers apply with: `./scripts/setup.sh`
 
 ### Adding New Question Types
 1. Add type to TypeScript union in `app/src/api/directus.ts`
@@ -163,7 +163,7 @@ The `BranchingEngine` class handles all conditional logic. Key methods:
 ## Troubleshooting Common Issues
 
 ### Schema Application Fails
-- Run the complete setup script: `./scripts/setup-complete-schema.sh`
+- Run the complete setup script: `./scripts/setup.sh`
 - Verify Directus running: `curl http://localhost:8055/server/health`
 - Check logs: `docker-compose logs directus`
 - If persistent issues, try manual collection creation in Directus admin
@@ -176,7 +176,7 @@ The `BranchingEngine` class handles all conditional logic. Key methods:
 ### Docker Environment Issues
 - Check container status: `docker-compose ps`
 - View logs: `docker-compose logs directus`
-- Reset if corrupted: `./scripts/setup-complete-schema.sh`
+- Reset if corrupted: `./scripts/setup.sh`
 
 ## Demo Data Structure
 

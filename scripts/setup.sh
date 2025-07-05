@@ -1,7 +1,7 @@
 #!/bin/bash
 # Complete Directus Forms POC Setup Script
 # This script sets up the entire Directus environment with schema and permissions
-# Usage: ./scripts/setup-complete-schema.sh
+# Usage: ./scripts/setup.sh
 
 set -e
 

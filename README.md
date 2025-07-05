@@ -34,7 +34,7 @@ This POC showcases:
 Set up the entire POC from scratch:
 
 ```bash
-./scripts/setup-complete-schema.sh
+./scripts/setup.sh
 ```
 
 This automated script will:
@@ -172,7 +172,7 @@ await directusClient.saveAnswer(response.id, 'question_uid', value);
 
 ```bash
 # Full setup from scratch (recommended)
-./scripts/setup-complete-schema.sh
+./scripts/setup.sh
 
 # Just restart without losing data
 docker-compose restart
