@@ -18,16 +18,10 @@ const LongTextField: React.FC<LongTextFieldProps> = ({ question, value, onChange
     setLocalValue(value || '');
   }, [value]);
   
-  // Handle text input change (local only)
+  // Handle text input change - update both local and parent state immediately
   const handleTextChange = (text: string) => {
     setLocalValue(text);
-  };
-  
-  // Handle blur - save to external state
-  const handleBlur = () => {
-    if (localValue !== value) {
-      onChange(localValue);
-    }
+    onChange(text); // Update parent state for canProceed logic
   };
   
   return (
@@ -36,7 +30,6 @@ const LongTextField: React.FC<LongTextFieldProps> = ({ question, value, onChange
         variant="outlined"
         value={localValue}
         onChangeText={handleTextChange}
-        onBlur={handleBlur}
         placeholder={settings.placeholder || 'Enter your answer...'}
         multiline={true}
         numberOfLines={4}

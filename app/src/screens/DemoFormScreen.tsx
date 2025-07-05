@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Text, ActivityIndicator } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -31,6 +31,12 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   const [response, setResponse] = useState<Response | null>(null);
   const [answers, setAnswers] = useState<ResponseItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize hiddenFields to prevent recreation
+  const hiddenFields = useMemo(() => ({
+    utm_source: 'demo_app',
+    user_segment: 'demo_user'
+  }), []);
 
   useEffect(() => {
     loadForm();
@@ -91,7 +97,8 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
     }
   };
 
-  const handleAnswerChange = async (questionUid: string, value: any) => {
+  const handleAnswerChange = useCallback(async (questionUid: string, value: any) => {
+    console.log('📋 DemoFormScreen: handleAnswerChange called:', questionUid, '=', value);
     if (!response) return;
 
     try {
@@ -102,36 +109,41 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
       // Save answer to backend
       const success = await directusClient.saveAnswer(response.id, question.id, value);
       if (success) {
-        // Update local answers
-        const updatedAnswers = [...answers];
-        const existingIndex = updatedAnswers.findIndex(a => a.question_id === question.id);
-        
-        const answerItem: ResponseItem = {
-          id: `temp_${Date.now()}`,
-          response_id: response.id,
-          question_id: question.id,
-          value: value
-        };
-        
-        if (existingIndex >= 0) {
-          updatedAnswers[existingIndex] = answerItem;
-        } else {
-          updatedAnswers.push(answerItem);
-        }
-        
-        setAnswers(updatedAnswers);
+        // Update local answers using functional update to avoid stale closure
+        setAnswers(prevAnswers => {
+          console.log('📋 DemoFormScreen: Updating answers array, previous length:', prevAnswers.length);
+          const updatedAnswers = [...prevAnswers];
+          const existingIndex = updatedAnswers.findIndex(a => a.question_id === question.id);
+          
+          const answerItem: ResponseItem = {
+            id: `temp_${question.id}_${Date.now()}`, // Use stable ID based on question
+            response_id: response.id,
+            question_id: question.id,
+            value: value
+          };
+          
+          if (existingIndex >= 0) {
+            updatedAnswers[existingIndex] = answerItem;
+          } else {
+            updatedAnswers.push(answerItem);
+          }
+          
+          console.log('📋 DemoFormScreen: Updated answers array, new length:', updatedAnswers.length);
+          return updatedAnswers;
+        });
         
         // Update progress
-        const progress = Math.round((updatedAnswers.length / questions.length) * 100);
+        const progress = Math.round((answers.length / questions.length) * 100);
         await directusClient.updateResponse(response.id, { progress_pct: progress });
       }
     } catch (err) {
       console.error('Error saving answer:', err);
       Alert.alert('Error', 'Failed to save answer');
     }
-  };
+  }, [response, questions, answers.length]); // Stable dependencies
 
-  const handleComplete = async (exitKey?: string) => {
+  const handleComplete = useCallback(async (exitKey?: string) => {
+    console.log('🏁 DemoFormScreen: handleComplete called with exitKey:', exitKey);
     if (!response) return;
 
     try {
@@ -144,7 +156,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
       console.error('Error completing form:', err);
       Alert.alert('Error', 'Failed to complete form');
     }
-  };
+  }, [response, navigation]);
 
   if (loading) {
     return (
@@ -189,10 +201,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
         answers={answers}
         onAnswerChange={handleAnswerChange}
         onComplete={handleComplete}
-        hiddenFields={{
-          utm_source: 'demo_app',
-          user_segment: 'demo_user'
-        }}
+        hiddenFields={hiddenFields}
       />
     </View>
   );

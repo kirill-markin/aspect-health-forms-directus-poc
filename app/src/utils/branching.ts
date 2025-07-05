@@ -63,9 +63,12 @@ export class BranchingEngine {
 
   // Get the next question or exit action based on current state
   getNextAction(currentQuestionUid?: string): BranchingResult {
+    console.log('🔀 BranchingEngine.getNextAction called with:', currentQuestionUid);
+    
     // If no current question, start with first question
     if (!currentQuestionUid) {
       const firstQuestion = this.questions[0];
+      console.log('🔀 No current question, returning first question:', firstQuestion?.uid);
       return {
         nextQuestionId: firstQuestion?.id,
         shouldExit: !firstQuestion
@@ -74,20 +77,35 @@ export class BranchingEngine {
 
     const currentQuestion = this.questions.find(q => q.uid === currentQuestionUid);
     if (!currentQuestion) {
+      console.log('🔀 Current question not found, exiting');
       return { shouldExit: true };
     }
 
     const currentAnswer = this.answers.get(currentQuestionUid);
+    console.log('🔀 Current question:', currentQuestion.uid, 'Answer:', currentAnswer);
 
     // Find applicable branching rules for the current question
     const applicableRules = this.rules.filter(rule => {
       return rule.question_id === currentQuestion.id;
     });
+    
+    console.log('🔀 Found', applicableRules.length, 'applicable rules for question:', currentQuestion.uid);
 
     // Evaluate rules in order
     for (const rule of applicableRules) {
       const ruleResult = this.evaluateRule(rule, currentAnswer);
+      console.log('🔀 Rule evaluation:', {
+        operator: rule.operator,
+        ruleValue: rule.value,
+        currentAnswer: currentAnswer,
+        matches: ruleResult.matches,
+        targetQuestionId: rule.target_question_id,
+        exitKey: rule.exit_key
+      });
+      
       if (ruleResult.matches) {
+        const targetQuestion = this.questions.find(q => q.id === rule.target_question_id);
+        console.log('🔀 Rule matched! Transitioning to:', targetQuestion?.uid || 'EXIT');
         return {
           nextQuestionId: rule.target_question_id || undefined,
           exitKey: rule.exit_key || undefined,
@@ -99,13 +117,16 @@ export class BranchingEngine {
     // Default behavior: go to next question in sequence
     const currentIndex = this.questions.findIndex(q => q.uid === currentQuestionUid);
     if (currentIndex >= 0 && currentIndex < this.questions.length - 1) {
+      const nextQuestion = this.questions[currentIndex + 1];
+      console.log('🔀 No rules matched, going to next question in sequence:', nextQuestion.uid);
       return {
-        nextQuestionId: this.questions[currentIndex + 1].id,
+        nextQuestionId: nextQuestion.id,
         shouldExit: false
       };
     }
 
     // No more questions, exit with default success
+    console.log('🔀 No more questions, exiting with success');
     return { shouldExit: true, exitKey: 'success' };
   }
 
@@ -163,7 +184,13 @@ export class BranchingEngine {
 
   // Update answers and recalculate next action
   updateAnswer(questionUid: string, value: any): void {
+    console.log('📝 BranchingEngine.updateAnswer:', questionUid, '=', value);
     this.answers.set(questionUid, value);
+  }
+
+  // Get answer for a specific question
+  getAnswer(questionUid: string): any {
+    return this.answers.get(questionUid);
   }
 
   // Calculate progress percentage

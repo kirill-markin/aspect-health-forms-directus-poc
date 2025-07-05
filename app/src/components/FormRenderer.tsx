@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, Card } from './ui';
 import { Question, ResponseItem, BranchingRule } from '../api/directus';
@@ -46,62 +46,153 @@ const FormRenderer: React.FC<FormRendererProps> = ({
   const [branchingEngine, setBranchingEngine] = useState<BranchingEngine | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [canProceed, setCanProceed] = useState(false);
+  // Local state for current answers (UI only, not saved to server)
+  const [localAnswers, setLocalAnswers] = useState<Map<string, any>>(new Map());
 
-  // Initialize branching engine
+  // Initialize branching engine ONLY once
   useEffect(() => {
+    console.log('🔄 FormRenderer: Initializing branching engine with answers:', answers.length);
     const engine = new BranchingEngine(branchingRules, questions, answers, hiddenFields);
     setBranchingEngine(engine);
     
-    // Get first question
+    // Initialize local answers from server answers
+    const initialLocalAnswers = new Map<string, any>();
+    answers.forEach(answer => {
+      const question = questions.find(q => q.id === answer.question_id);
+      if (question) {
+        // Parse JSON value back to original format (if it's JSON)
+        let value = answer.value;
+        if (typeof value === 'string') {
+          try {
+            if (value.startsWith('"') || value.startsWith('[') || value.startsWith('{')) {
+              value = JSON.parse(value);
+            }
+          } catch (error) {
+            console.error('Error parsing answer value:', error);
+          }
+        }
+        initialLocalAnswers.set(question.uid, value);
+      }
+    });
+    setLocalAnswers(initialLocalAnswers);
+    
+    // Get first question ONLY during initial load
+    console.log('🔄 FormRenderer: Getting first question...');
     const firstAction = engine.getNextAction();
     if (firstAction.shouldExit) {
+      console.log('🔄 FormRenderer: Form should exit immediately');
       onComplete(firstAction.exitKey);
       return;
     }
     
     const firstQuestion = questions.find(q => q.id === firstAction.nextQuestionId);
     if (firstQuestion) {
+      console.log('🔄 FormRenderer: Setting first question:', firstQuestion.uid);
       setCurrentQuestion(firstQuestion);
       setCurrentQuestionIndex(0);
-      checkCanProceed(firstQuestion, engine);
+      checkCanProceed(firstQuestion);
     }
-  }, [questions, branchingRules, answers, hiddenFields]);
+  }, [questions, branchingRules, hiddenFields]); // Remove 'answers' from dependencies
 
   // Check if user can proceed (required questions answered)
-  const checkCanProceed = (question: Question, engine: BranchingEngine) => {
+  const checkCanProceed = useCallback((question: Question) => {
     if (!question.required) {
       setCanProceed(true);
       return;
     }
     
-    const answeredQuestions = engine.getAnsweredQuestions();
-    setCanProceed(answeredQuestions.includes(question.uid));
-  };
+    // Check local answers for current question
+    const localAnswer = localAnswers.get(question.uid);
+    const hasAnswer = localAnswer !== null && localAnswer !== undefined && 
+                     (Array.isArray(localAnswer) ? localAnswer.length > 0 : String(localAnswer).trim() !== '');
+    setCanProceed(hasAnswer);
+  }, [localAnswers]);
 
-  // Handle answer changes
+  // Handle answer changes (local only, not saved to server)
   const handleAnswerChange = (value: any) => {
-    if (!currentQuestion || !branchingEngine) return;
+    if (!currentQuestion) return;
     
-    branchingEngine.updateAnswer(currentQuestion.uid, value);
-    onAnswerChange(currentQuestion.uid, value);
-    checkCanProceed(currentQuestion, branchingEngine);
+    // Update local state only
+    const newLocalAnswers = new Map(localAnswers);
+    newLocalAnswers.set(currentQuestion.uid, value);
+    setLocalAnswers(newLocalAnswers);
+    
+    // Update canProceed based on local state
+    checkCanProceed(currentQuestion);
     
     // Auto-advance for single choice questions
     if (currentQuestion.type === 'single_choice' && value) {
-      // Add small delay to show selection feedback
+      // Add small delay to show selection feedback, then save and proceed
       setTimeout(() => {
-        handleNext();
+        saveCurrentAnswerAndProceed(value);
       }, 300);
     }
   };
 
-  // Handle next button
-  const handleNext = () => {
+  // Save current answer to server and proceed to next question
+  const saveCurrentAnswerAndProceed = async (value?: any) => {
+    console.log('💾 FormRenderer: saveCurrentAnswerAndProceed called with value:', value);
     if (!currentQuestion || !branchingEngine) return;
     
+    // Get value from parameter or local state
+    const answerValue = value !== undefined ? value : localAnswers.get(currentQuestion.uid);
+    console.log('💾 FormRenderer: Answer value to save:', answerValue, 'for question:', currentQuestion.uid);
+    
+    if (answerValue !== undefined) {
+      // Update local answers FIRST (synchronously in the new Map)
+      const newLocalAnswers = new Map(localAnswers);
+      newLocalAnswers.set(currentQuestion.uid, answerValue);
+      setLocalAnswers(newLocalAnswers);
+      console.log('💾 FormRenderer: Updated local answers with value:', answerValue);
+      
+      // Save to server
+      console.log('💾 FormRenderer: Saving to server...');
+      onAnswerChange(currentQuestion.uid, answerValue);
+      
+      // IMPORTANT: Update branching engine with current answer BEFORE applying rules
+      console.log('💾 FormRenderer: Updating branching engine...');
+      branchingEngine.updateAnswer(currentQuestion.uid, answerValue);
+      
+      // Wait a bit for save to complete, then proceed with the updated local answers
+      console.log('💾 FormRenderer: Scheduling handleNext with updated answers...');
+      setTimeout(() => {
+        handleNextWithUpdatedAnswers(newLocalAnswers);
+      }, 100);
+    }
+  };
+
+  // Handle next button with specific local answers (to avoid stale state)
+  const handleNextWithUpdatedAnswers = (updatedLocalAnswers?: Map<string, any>) => {
+    console.log('➡️ FormRenderer: handleNextWithUpdatedAnswers called');
+    if (!currentQuestion || !branchingEngine) return;
+    
+    // Use provided updated answers or current local answers
+    const currentLocalAnswers = updatedLocalAnswers || localAnswers;
+    
+    // Save current answer to server if not already saved (for manual Next button clicks)
+    const localAnswer = currentLocalAnswers.get(currentQuestion.uid);
+    if (localAnswer !== undefined) {
+      console.log('➡️ FormRenderer: Local answer found:', localAnswer, 'for question:', currentQuestion.uid);
+      // Check if branching engine already has this answer
+      const engineAnswer = branchingEngine.getAnswer(currentQuestion.uid);
+      console.log('➡️ FormRenderer: Engine answer:', engineAnswer, 'vs local answer:', localAnswer);
+      
+      if (engineAnswer !== localAnswer) {
+        console.log('➡️ FormRenderer: Answer differs in engine, updating both server and engine');
+        // Save to server
+        onAnswerChange(currentQuestion.uid, localAnswer);
+        // Update branching engine with current answer
+        branchingEngine.updateAnswer(currentQuestion.uid, localAnswer);
+      } else {
+        console.log('➡️ FormRenderer: Answer already matches in engine, skipping save');
+      }
+    }
+    
+    console.log('➡️ FormRenderer: Getting next action for question:', currentQuestion.uid);
     const nextAction = branchingEngine.getNextAction(currentQuestion.uid);
     
     if (nextAction.shouldExit) {
+      console.log('➡️ FormRenderer: Form should exit with key:', nextAction.exitKey);
       onComplete(nextAction.exitKey);
       return;
     }
@@ -109,12 +200,19 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     if (nextAction.nextQuestionId) {
       const nextQuestion = questions.find(q => q.id === nextAction.nextQuestionId);
       if (nextQuestion) {
+        console.log('➡️ FormRenderer: Transitioning to question:', nextQuestion.uid);
         setCurrentQuestion(nextQuestion);
         const nextIndex = questions.findIndex(q => q.id === nextAction.nextQuestionId);
         setCurrentQuestionIndex(nextIndex);
-        checkCanProceed(nextQuestion, branchingEngine);
+        checkCanProceed(nextQuestion);
       }
     }
+  };
+
+  // Handle next button (public interface)
+  const handleNext = () => {
+    console.log('➡️ FormRenderer: handleNext called (public interface)');
+    handleNextWithUpdatedAnswers();
   };
 
   // Handle back button
@@ -123,13 +221,21 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       const prevQuestion = questions[currentQuestionIndex - 1];
       setCurrentQuestion(prevQuestion);
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      checkCanProceed(prevQuestion, branchingEngine!);
+      checkCanProceed(prevQuestion);
     }
   };
 
-  // Get current answer
+  // Get current answer (check local first, then server)
   const getCurrentAnswer = () => {
     if (!currentQuestion) return null;
+    
+    // First check local answers
+    const localAnswer = localAnswers.get(currentQuestion.uid);
+    if (localAnswer !== undefined) {
+      return localAnswer;
+    }
+    
+    // Fallback to server answers
     const answerItem = answers.find(a => a.question_id === currentQuestion.id);
     if (!answerItem?.value) return null;
     
