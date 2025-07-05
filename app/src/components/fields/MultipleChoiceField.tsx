@@ -33,12 +33,9 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
     }
   };
   
-  // Checkmark component
+  // Simple checkmark using text
   const CheckmarkIcon = () => (
-    <View style={styles.checkmarkContainer}>
-      <View style={[styles.checkmarkLine, styles.checkmarkShort]} />
-      <View style={[styles.checkmarkLine, styles.checkmarkLong]} />
-    </View>
+    <Text style={styles.checkmark}>✓</Text>
   );
   
   return (
@@ -98,11 +95,12 @@ const styles = StyleSheet.create({
     borderColor: '#0066CC',
   },
   checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 2,
     borderWidth: 2,
-    borderColor: '#CBD5E0',
+    borderColor: '#718096',
+    backgroundColor: '#FFFFFF',
     marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -111,29 +109,10 @@ const styles = StyleSheet.create({
     borderColor: '#0066CC',
     backgroundColor: '#0066CC',
   },
-  checkmarkContainer: {
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkmarkLine: {
-    backgroundColor: '#FFFFFF',
-    position: 'absolute',
-  },
-  checkmarkShort: {
-    width: 2,
-    height: 6,
-    transform: [{ rotate: '45deg' }],
-    left: 5,
-    top: 7,
-  },
-  checkmarkLong: {
-    width: 2,
-    height: 10,
-    transform: [{ rotate: '-45deg' }],
-    right: 3,
-    top: 3,
+  checkmark: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   choiceText: {
     fontSize: 16,
