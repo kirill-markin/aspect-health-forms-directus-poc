@@ -71,6 +71,9 @@ const TextInput: React.FC<TextInputProps> = ({
           value={value}
           editable={!disabled}
           placeholderTextColor="#BDC3C7"
+          selectionColor="#FF6B9D"
+          underlineColorAndroid="transparent"
+          textAlignVertical="top"
           {...props}
         />
       </View>
@@ -163,6 +166,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flex: 1,
     fontWeight: '500',
+    outline: 'none',
+    outlineWidth: 0,
   },
   smallInput: {
     fontSize: 14,

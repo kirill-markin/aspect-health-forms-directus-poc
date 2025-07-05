@@ -47,6 +47,8 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
             ]}
             onPress={() => handleChoiceToggle(choice.value)}
             activeOpacity={0.7}
+            accessible={true}
+            accessibilityRole="button"
           >
             <Text 
               variant="body" 
@@ -89,6 +91,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
+    outline: 'none',
+    outlineWidth: 0,
   },
   selectedChoice: {
     backgroundColor: '#FF6B9D',

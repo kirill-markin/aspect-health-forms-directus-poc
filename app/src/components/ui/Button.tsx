@@ -40,6 +40,8 @@ const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.7}
+      accessible={true}
+      accessibilityRole="button"
       {...props}
     >
       <Text variant="body" color={textColor} style={styles.textStyle}>
@@ -76,6 +78,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    outline: 'none',
+    outlineWidth: 0,
   },
   primary: {
     backgroundColor: '#FF6B9D',

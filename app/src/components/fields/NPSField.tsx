@@ -29,6 +29,8 @@ const NPSField: React.FC<NPSFieldProps> = ({ question, value, onChange }) => {
             isSelected && styles.selectedButton
           ]}
           activeOpacity={0.7}
+          accessible={true}
+          accessibilityRole="button"
         >
           <Text 
             variant="body" 
@@ -84,6 +86,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+    outline: 'none',
+    outlineWidth: 0,
   },
   selectedButton: {
     backgroundColor: '#FF6B9D',
