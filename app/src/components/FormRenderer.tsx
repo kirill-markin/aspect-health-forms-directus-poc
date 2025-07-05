@@ -128,22 +128,23 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     // Update canProceed based on current answer
     checkCanProceed(currentQuestion);
     
-    // Auto-advance for single choice questions
+    // Auto-advance for single choice questions - simulate Next button click
     if (currentQuestion.type === 'single_choice' && value) {
-      // Add small delay to show selection feedback, then proceed with the specific value
+      // Add small delay to show selection feedback, then proceed exactly like Next button
       setTimeout(() => {
-        proceedToNextWithValue(value);
+        console.log('📻 FormRenderer: Auto-advancing single choice - simulating Next button click');
+        handleNext();
       }, 300);
     }
   };
 
-  // Proceed to next question using branching engine with specific value
-  const proceedToNextWithValue = (answerValue?: any) => {
-    console.log('➡️ FormRenderer: proceedToNextWithValue called with:', answerValue);
+  // Proceed to next question using branching engine
+  const proceedToNext = () => {
+    console.log('➡️ FormRenderer: proceedToNext called');
     if (!currentQuestion || !branchingEngine) return;
     
-    // Use provided value or get current answer from React state
-    const currentAnswer = answerValue !== undefined ? answerValue : currentAnswers.get(currentQuestion.uid);
+    // Get current answer directly from answer store (most up-to-date)
+    const currentAnswer = answerStore.getAnswer(currentQuestion.uid);
     console.log('➡️ FormRenderer: Using answer value:', currentAnswer, 'for question:', currentQuestion.uid);
     
     // Update branching engine with current answer
@@ -170,12 +171,6 @@ const FormRenderer: React.FC<FormRendererProps> = ({
         checkCanProceed(nextQuestion);
       }
     }
-  };
-
-  // Proceed to next question using branching engine
-  const proceedToNext = () => {
-    console.log('➡️ FormRenderer: proceedToNext called');
-    proceedToNextWithValue();
   };
 
   // Handle next button (public interface)
