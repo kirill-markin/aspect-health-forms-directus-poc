@@ -92,13 +92,6 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
 
         <View style={styles.buttonContainer}>
           <Button
-            variant="primary"
-            title="Take Another Survey"
-            onPress={handleRestart}
-            style={styles.primaryButton}
-          />
-          
-          <Button
             variant="secondary"
             title="Return to Home"
             onPress={handleReturnToApp}
