@@ -107,18 +107,18 @@ async function seedData() {
             },
             {
                 form_version_id: createdFormVersion.id,
-                uid: "about_yourself",
-                label: "Tell us a bit about yourself:",
-                type: "short_text",
-                required: true,
-                order: 4
-            },
-            {
-                form_version_id: createdFormVersion.id,
                 uid: "interests",
                 label: "What areas are you interested in? (Select all that apply)",
                 type: "multiple_choice",
                 required: false,
+                order: 4
+            },
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "about_yourself",
+                label: "Tell us a bit about yourself:",
+                type: "short_text",
+                required: true,
                 order: 5
             },
             {
@@ -245,20 +245,20 @@ async function seedData() {
                     question_id: platformPurposeQuestion.id,
                     operator: "is_not_empty",
                     value: JSON.stringify(null),
-                    target_question_id: aboutYourselfQuestion.id,
+                    target_question_id: interestsQuestionRef.id,
                     order: 4
                 },
                 {
                     form_version_id: createdFormVersion.id,
-                    question_id: aboutYourselfQuestion.id,
+                    question_id: interestsQuestionRef.id,
                     operator: "is_not_empty",
                     value: JSON.stringify(null),
-                    target_question_id: interestsQuestionRef.id,
+                    target_question_id: aboutYourselfQuestion.id,
                     order: 5
                 },
                 {
                     form_version_id: createdFormVersion.id,
-                    question_id: interestsQuestionRef.id,
+                    question_id: aboutYourselfQuestion.id,
                     operator: "is_not_empty",
                     value: JSON.stringify(null),
                     target_question_id: detailedGoalsQuestion.id,
