@@ -28,10 +28,10 @@ const NPSField: React.FC<NPSFieldProps> = ({ question, value, onChange }) => {
             styles.scaleButton,
             isSelected && styles.selectedButton
           ]}
+          activeOpacity={0.7}
         >
           <Text 
             variant="body" 
-            color={isSelected ? '#FFFFFF' : '#4A5568'}
             style={[
               styles.buttonText,
               isSelected && styles.selectedButtonText
@@ -52,8 +52,8 @@ const NPSField: React.FC<NPSFieldProps> = ({ question, value, onChange }) => {
       </View>
       
       <View style={styles.labelContainer}>
-        <Text variant="small" color="#718096" style={styles.minLabel}>{minLabel}</Text>
-        <Text variant="small" color="#718096" style={styles.maxLabel}>{maxLabel}</Text>
+        <Text variant="small" style={styles.minLabel}>{minLabel}</Text>
+        <Text variant="small" style={styles.maxLabel}>{maxLabel}</Text>
       </View>
     </View>
   );
@@ -66,51 +66,59 @@ const styles = StyleSheet.create({
   scaleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
-    paddingHorizontal: 4,
+    marginBottom: 20,
+    paddingHorizontal: 2,
   },
   scaleButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#F7FAFC',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: '#E8E9EA',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 2,
-  },
-  selectedButton: {
-    backgroundColor: '#0066CC',
-    borderColor: '#0066CC',
-    elevation: 2,
+    marginHorizontal: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 4,
+    elevation: 2,
+  },
+  selectedButton: {
+    backgroundColor: '#FF6B9D',
+    borderColor: '#FF6B9D',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#4A5568',
+    color: '#2C3E50',
   },
   selectedButtonText: {
     color: '#FFFFFF',
+    fontWeight: '700',
   },
   labelContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
   },
   minLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: '#7F8C8D',
+    fontWeight: '500',
     flex: 1,
     textAlign: 'left',
   },
   maxLabel: {
     fontSize: 14,
-    color: '#718096',
+    color: '#7F8C8D',
+    fontWeight: '500',
     flex: 1,
     textAlign: 'right',
   },

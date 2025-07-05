@@ -10,7 +10,7 @@ interface ActivityIndicatorProps {
 
 const ActivityIndicator: React.FC<ActivityIndicatorProps> = ({
   size = 'medium',
-  color = '#0066CC',
+  color = '#FF6B9D',
   animating = true,
   style,
 }) => {

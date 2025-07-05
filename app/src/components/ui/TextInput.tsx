@@ -59,7 +59,7 @@ const TextInput: React.FC<TextInputProps> = ({
   return (
     <View style={styles.wrapper}>
       {label && (
-        <Text variant="small" color="#374151" style={styles.label}>
+        <Text variant="small" style={styles.label}>
           {label}
         </Text>
       )}
@@ -70,12 +70,12 @@ const TextInput: React.FC<TextInputProps> = ({
           onBlur={handleBlur}
           value={value}
           editable={!disabled}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor="#BDC3C7"
           {...props}
         />
       </View>
       {error && (
-        <Text variant="small" color="#E53E3E" style={styles.errorText}>
+        <Text variant="small" style={styles.errorText}>
           {error}
         </Text>
       )}
@@ -88,74 +88,104 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    marginBottom: 4,
-    fontWeight: '500',
+    marginBottom: 8,
+    fontWeight: '600',
+    fontSize: 16,
+    color: '#2C3E50',
   },
   container: {
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#E8E9EA',
     backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   default: {
     borderBottomWidth: 2,
     borderRadius: 0,
     backgroundColor: 'transparent',
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   outlined: {
     borderWidth: 2,
-    borderColor: '#E5E7EB',
+    borderColor: '#E8E9EA',
   },
   filled: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F5F6FA',
     borderColor: 'transparent',
   },
   focused: {
-    borderColor: '#0066CC',
+    borderColor: '#FF6B9D',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
   },
   error: {
-    borderColor: '#E53E3E',
+    borderColor: '#E74C3C',
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
   },
   disabled: {
-    backgroundColor: '#F3F4F6',
-    borderColor: '#E5E7EB',
+    backgroundColor: '#E8E9EA',
+    borderColor: '#BDC3C7',
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   smallSize: {
-    minHeight: 32,
+    minHeight: 40,
   },
   mediumSize: {
-    minHeight: 44,
+    minHeight: 48,
   },
   largeSize: {
-    minHeight: 56,
+    minHeight: 64,
   },
   input: {
     fontSize: 16,
-    color: '#111827',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    color: '#2C3E50',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flex: 1,
+    fontWeight: '500',
   },
   smallInput: {
     fontSize: 14,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   mediumInput: {
     fontSize: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
   largeInput: {
     fontSize: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   disabledInput: {
-    color: '#9CA3AF',
+    color: '#BDC3C7',
   },
   errorText: {
-    marginTop: 4,
+    marginTop: 8,
+    color: '#E74C3C',
+    fontWeight: '500',
   },
 });
 

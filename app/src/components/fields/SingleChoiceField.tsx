@@ -30,16 +30,10 @@ const SingleChoiceField: React.FC<SingleChoiceFieldProps> = ({ question, value, 
               isSelected && styles.selectedChoice
             ]}
             onPress={() => handleChoiceSelect(choice.value)}
+            activeOpacity={0.7}
           >
-            <View style={[
-              styles.radioCircle,
-              isSelected && styles.selectedRadio
-            ]}>
-              {isSelected && <View style={styles.radioDot} />}
-            </View>
             <Text 
               variant="body" 
-              color={isSelected ? '#1A202C' : '#4A5568'}
               style={[
                 styles.choiceText,
                 isSelected && styles.selectedChoiceText
@@ -59,48 +53,38 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   choiceButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    backgroundColor: '#F7FAFC',
-    borderRadius: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: '#E8E9EA',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   selectedChoice: {
-    backgroundColor: '#EBF8FF',
-    borderColor: '#0066CC',
-  },
-  radioCircle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#CBD5E0',
-    marginRight: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedRadio: {
-    borderColor: '#0066CC',
-  },
-  radioDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#0066CC',
+    backgroundColor: '#FF6B9D',
+    borderColor: '#FF6B9D',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   choiceText: {
     fontSize: 16,
-    color: '#4A5568',
-    flex: 1,
-    lineHeight: 22,
+    fontWeight: '500',
+    color: '#2C3E50',
+    textAlign: 'center',
+    lineHeight: 24,
   },
   selectedChoiceText: {
-    color: '#1A202C',
-    fontWeight: '500',
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });
 

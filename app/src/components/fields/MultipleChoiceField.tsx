@@ -33,11 +33,6 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
     }
   };
   
-  // Simple checkmark using text
-  const CheckmarkIcon = () => (
-    <Text style={styles.checkmark}>✓</Text>
-  );
-  
   return (
     <View style={styles.container}>
       {choices.map((choice: QuestionChoice) => {
@@ -51,16 +46,10 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
               isSelected && styles.selectedChoice
             ]}
             onPress={() => handleChoiceToggle(choice.value)}
+            activeOpacity={0.7}
           >
-            <View style={[
-              styles.checkbox,
-              isSelected && styles.selectedCheckbox
-            ]}>
-              {isSelected && <CheckmarkIcon />}
-            </View>
             <Text 
               variant="body" 
-              color={isSelected ? '#1A202C' : '#4A5568'}
               style={[
                 styles.choiceText,
                 isSelected && styles.selectedChoiceText
@@ -68,6 +57,11 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
             >
               {choice.label}
             </Text>
+            {isSelected && (
+              <View style={styles.selectedIndicator}>
+                <Text style={styles.checkmark}>✓</Text>
+              </View>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -82,47 +76,53 @@ const styles = StyleSheet.create({
   choiceButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    marginBottom: 12,
-    backgroundColor: '#F7FAFC',
-    borderRadius: 12,
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#E2E8F0',
+    borderColor: '#E8E9EA',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   selectedChoice: {
-    backgroundColor: '#EBF8FF',
-    borderColor: '#0066CC',
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 2,
-    borderWidth: 2,
-    borderColor: '#718096',
-    backgroundColor: '#FFFFFF',
-    marginRight: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  selectedCheckbox: {
-    borderColor: '#0066CC',
-    backgroundColor: '#0066CC',
-  },
-  checkmark: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    backgroundColor: '#FF6B9D',
+    borderColor: '#FF6B9D',
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   choiceText: {
     fontSize: 16,
-    color: '#4A5568',
+    fontWeight: '500',
+    color: '#2C3E50',
     flex: 1,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   selectedChoiceText: {
-    color: '#1A202C',
-    fontWeight: '500',
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+  checkmark: {
+    fontSize: 14,
+    color: '#FF6B9D',
+    fontWeight: 'bold',
   },
 });
 

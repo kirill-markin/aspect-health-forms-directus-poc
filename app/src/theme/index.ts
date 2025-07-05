@@ -1,19 +1,26 @@
 export const theme = {
   colors: {
-    primary: '#0066CC',
-    secondary: '#4A90E2',
-    success: '#38A169',
-    error: '#E53E3E',
-    warning: '#F56500',
-    background: '#F8FAFC',
-    surface: '#FFFFFF',
-    border: '#E2E8F0',
+    // Aspect Health брендовые цвета
+    primary: '#FF6B9D', // Розовый из градиента
+    primaryDark: '#C44569', // Темно-розовый из градиента
+    secondary: '#2ECC71', // Зеленый для акцентов
+    success: '#2ECC71',
+    error: '#E74C3C',
+    warning: '#F39C12',
+    background: '#F5F6FA', // Светло-серый фон
+    surface: '#FFFFFF', // Белый для карточек
+    border: '#E8E9EA', // Очень светло-серый для границ
     text: {
-      primary: '#111827',
-      secondary: '#6B7280',
-      placeholder: '#9CA3AF',
+      primary: '#2C3E50', // Темно-серый для основного текста
+      secondary: '#7F8C8D', // Средне-серый для вторичного текста
+      placeholder: '#BDC3C7', // Светло-серый для placeholder
       disabled: '#D1D5DB',
+      white: '#FFFFFF', // Белый текст
     },
+    // Дополнительные цвета для Aspect Health стиля
+    gradientStart: '#FF6B9D',
+    gradientEnd: '#C44569',
+    cardShadow: '#000000',
   },
   spacing: {
     xs: 4,
@@ -47,31 +54,32 @@ export const theme = {
     },
   },
   borderRadius: {
-    sm: 4,
-    md: 8,
-    lg: 12,
-    xl: 16,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
     full: 9999,
   },
   shadow: {
     sm: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
+      shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
-      shadowRadius: 3,
+      shadowRadius: 4,
       elevation: 2,
     },
     md: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 6,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15,
+      shadowRadius: 8,
       elevation: 4,
     },
     lg: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.2,
       shadowRadius: 12,
       elevation: 8,
     },

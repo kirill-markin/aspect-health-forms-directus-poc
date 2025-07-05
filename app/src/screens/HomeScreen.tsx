@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, ImageBackground } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Card, ActivityIndicator } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { directusClient, Form } from '../api/directus';
-import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -71,8 +70,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066CC" />
-        <Text variant="body" color="#718096" style={styles.loadingText}>Loading available forms...</Text>
+        <ActivityIndicator size="large" color="#FF6B9D" />
+        <Text variant="body" style={styles.loadingText}>Loading available forms...</Text>
       </View>
     );
   }
@@ -80,7 +79,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text variant="body" color="#E53E3E" style={styles.errorText}>{error}</Text>
+        <Text variant="body" style={styles.errorText}>{error}</Text>
         <Button variant="primary" title="Retry" onPress={loadAvailableForms} style={styles.retryButton} />
       </View>
     );
@@ -88,29 +87,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <LinearGradient
-        colors={['#0066CC', '#4A90E2']}
-        style={styles.header}
-      >
-        <Text variant="h2" color="#FFFFFF" style={styles.title}>Welcome to</Text>
-        <Text variant="h1" color="#FFFFFF" style={styles.titleBold}>Aspect</Text>
-        <Text variant="body" color="#E6F3FF" style={styles.subtitle}>
+      <View style={styles.header}>
+        <Text variant="h2" style={styles.title}>Welcome to</Text>
+        <Text variant="h1" style={styles.titleBold}>Aspect</Text>
+        <Text variant="body" style={styles.subtitle}>
           Complete health surveys and assessments to help us provide better care
         </Text>
-      </LinearGradient>
+      </View>
 
       <View style={styles.content}>
         {forms.length === 0 ? (
           <Card style={styles.emptyCard}>
-            <Text variant="body" color="#718096" style={styles.emptyText}>No forms available at the moment</Text>
+            <Text variant="body" style={styles.emptyText}>No forms available at the moment</Text>
           </Card>
         ) : (
           forms.map((form) => (
             <Card key={form.id} style={styles.formCard}>
               <View style={styles.formContent}>
-                <Text variant="h3" color="#1A202C" style={styles.formTitle}>{form.title}</Text>
+                <Text variant="h3" style={styles.formTitle}>{form.title}</Text>
                 {form.description && (
-                  <Text variant="body" color="#718096" style={styles.formDescription}>{form.description}</Text>
+                  <Text variant="body" style={styles.formDescription}>{form.description}</Text>
                 )}
                 
                 <Button
@@ -125,8 +121,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )}
 
         <Card style={styles.infoCard}>
-          <Text variant="h3" color="#1A202C" style={styles.infoTitle}>📋 About Health Forms</Text>
-          <Text variant="body" color="#4A5568" style={styles.infoText}>
+          <Text variant="h3" style={styles.infoTitle}>📋 About Health Forms</Text>
+          <Text variant="body" style={styles.infoText}>
             Your responses help us understand your health needs better and provide 
             personalized care recommendations. All information is kept confidential 
             and secure.
@@ -140,12 +136,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   header: {
     paddingTop: 60,
     paddingHorizontal: 24,
     paddingBottom: 32,
+    backgroundColor: '#FF6B9D',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
@@ -157,49 +154,50 @@ const styles = StyleSheet.create({
   },
   titleBold: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: '#E6F3FF',
+    color: '#FFFFFF',
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 20,
+    opacity: 0.9,
   },
   content: {
-    padding: 20,
-  },
-  formCard: {
-    marginBottom: 20,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  formContent: {
     padding: 24,
   },
+  formCard: {
+    marginBottom: 24,
+    borderRadius: 20,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+  },
+  formContent: {
+    padding: 28,
+  },
   formTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1A202C',
-    marginBottom: 8,
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2C3E50',
+    marginBottom: 12,
   },
   formDescription: {
     fontSize: 16,
-    color: '#718096',
+    color: '#7F8C8D',
     marginBottom: 24,
-    lineHeight: 22,
+    lineHeight: 24,
   },
   startButton: {
-    backgroundColor: '#0066CC',
-    borderRadius: 12,
-    paddingVertical: 4,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 16,
+    paddingVertical: 16,
   },
   startButtonLabel: {
     fontSize: 16,
@@ -207,59 +205,59 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   emptyCard: {
-    padding: 24,
-    borderRadius: 16,
-    marginBottom: 20,
+    padding: 28,
+    borderRadius: 20,
+    marginBottom: 24,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#718096',
+    color: '#7F8C8D',
     fontSize: 16,
   },
   infoCard: {
-    backgroundColor: '#EBF8FF',
-    borderRadius: 16,
+    backgroundColor: '#FFF5F8',
+    borderRadius: 20,
     borderLeftWidth: 4,
-    borderLeftColor: '#0066CC',
+    borderLeftColor: '#FF6B9D',
   },
   infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#1A202C',
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 16,
+    color: '#2C3E50',
   },
   infoText: {
-    fontSize: 15,
-    color: '#4A5568',
-    lineHeight: 22,
+    fontSize: 16,
+    color: '#7F8C8D',
+    lineHeight: 24,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#718096',
+    color: '#7F8C8D',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   errorText: {
     fontSize: 18,
-    color: '#E53E3E',
+    color: '#E74C3C',
     textAlign: 'center',
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: '#0066CC',
-    borderRadius: 12,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 16,
   },
 });
 

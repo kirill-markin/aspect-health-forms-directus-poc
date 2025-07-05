@@ -2,6 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { TouchableOpacity } from 'react-native';
+import { Text } from './src/components/ui';
 
 import HomeScreen from './src/screens/HomeScreen';
 import DemoFormScreen from './src/screens/DemoFormScreen';
@@ -24,11 +26,17 @@ export default function App() {
           screenOptions={{
             headerShown: true,
             headerStyle: {
-              backgroundColor: '#0066CC',
+              backgroundColor: '#FF6B9D',
+              elevation: 6,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 12,
             },
             headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: '700',
+              fontSize: 18,
             },
           }}
         >
@@ -42,18 +50,36 @@ export default function App() {
           <Stack.Screen 
             name="DemoForm" 
             component={DemoFormScreen}
-            options={{
-              title: 'Health Survey',
+            options={({ navigation }) => ({
+              headerTitle: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Home')}
+                  style={{ alignItems: 'center' }}
+                >
+                  <Text variant="body" style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 18 }}>
+                    Health Survey
+                  </Text>
+                </TouchableOpacity>
+              ),
               headerLeft: () => null, // Disable back button during form
-            }}
+            })}
           />
           <Stack.Screen 
             name="Success" 
             component={SuccessScreen}
-            options={{
-              title: 'Complete',
+            options={({ navigation }) => ({
+              headerTitle: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Home')}
+                  style={{ alignItems: 'center' }}
+                >
+                  <Text variant="body" style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 18 }}>
+                    Complete
+                  </Text>
+                </TouchableOpacity>
+              ),
               headerLeft: () => null, // Disable back button on success screen
-            }}
+            })}
           />
         </Stack.Navigator>
       </NavigationContainer>

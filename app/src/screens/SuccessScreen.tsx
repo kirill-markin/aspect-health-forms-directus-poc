@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { Text, Button, Card } from '../components/ui';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -29,21 +28,21 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
           title: 'Thank you for your responses',
           message: 'Based on your answers, we recommend following up with a healthcare provider. Our team will be in touch soon.',
           emoji: '🩺',
-          color: '#E53E3E'
+          color: '#E74C3C'
         };
       case 'incomplete':
         return {
           title: 'Form Incomplete',
           message: 'It looks like you didn\'t complete all required questions. You can continue where you left off.',
           emoji: '⚠️',
-          color: '#F56500'
+          color: '#F39C12'
         };
       default:
         return {
           title: 'Thank you!',
           message: 'Your health survey has been completed successfully. We appreciate your time and feedback.',
           emoji: '✅',
-          color: '#38A169'
+          color: '#2ECC71'
         };
     }
   };
@@ -60,12 +59,9 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0066CC', '#4A90E2']}
-        style={styles.header}
-      >
-        <Text variant="h2" color="#FFFFFF" style={styles.headerTitle}>Survey Complete</Text>
-      </LinearGradient>
+      <View style={styles.header}>
+        <Text variant="h2" style={styles.headerTitle}>Survey Complete</Text>
+      </View>
 
       <View style={styles.content}>
         <Card style={styles.card}>
@@ -76,13 +72,13 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
               {successInfo.title}
             </Text>
             
-            <Text variant="body" color="#4A5568" style={styles.message}>
+            <Text variant="body" style={styles.message}>
               {successInfo.message}
             </Text>
             
             {exitKey === 'high_risk' && (
               <View style={styles.warningContainer}>
-                <Text variant="small" color="#742A2A" style={styles.warningText}>
+                <Text variant="small" style={styles.warningText}>
                   Important: If you are experiencing a medical emergency, please call 911 or go to the nearest emergency room immediately.
                 </Text>
               </View>
@@ -106,46 +102,47 @@ const SuccessScreen: React.FC<SuccessScreenProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   header: {
     paddingTop: 60,
     paddingHorizontal: 24,
     paddingBottom: 24,
+    backgroundColor: '#FF6B9D',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center',
   },
   card: {
-    borderRadius: 16,
-    elevation: 3,
+    borderRadius: 24,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
     marginBottom: 32,
   },
   cardContent: {
     alignItems: 'center',
-    padding: 32,
+    padding: 36,
   },
   emoji: {
     fontSize: 64,
     marginBottom: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -154,15 +151,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
-    color: '#4A5568',
+    color: '#7F8C8D',
   },
   warningContainer: {
     backgroundColor: '#FFF5F5',
-    padding: 16,
-    borderRadius: 12,
+    padding: 20,
+    borderRadius: 16,
     marginBottom: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#E53E3E',
+    borderLeftColor: '#E74C3C',
   },
   warningText: {
     fontSize: 14,
@@ -174,9 +171,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   primaryButton: {
-    backgroundColor: '#0066CC',
-    borderRadius: 12,
-    paddingVertical: 4,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 16,
+    paddingVertical: 16,
   },
   primaryButtonLabel: {
     fontSize: 16,
@@ -184,15 +181,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   secondaryButton: {
-    borderColor: '#0066CC',
+    borderColor: '#FF6B9D',
     borderWidth: 2,
-    borderRadius: 12,
-    paddingVertical: 4,
+    borderRadius: 16,
+    paddingVertical: 16,
   },
   secondaryButtonLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0066CC',
+    color: '#FF6B9D',
   },
 });
 

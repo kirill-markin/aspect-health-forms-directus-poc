@@ -42,7 +42,7 @@ const Button: React.FC<ButtonProps> = ({
       activeOpacity={0.7}
       {...props}
     >
-      <Text variant="body" color={textColor} style={styles.text}>
+      <Text variant="body" color={textColor} style={styles.textStyle}>
         {loading ? 'Loading...' : title}
       </Text>
     </TouchableOpacity>
@@ -50,16 +50,16 @@ const Button: React.FC<ButtonProps> = ({
 };
 
 const getTextColor = (variant: ButtonVariant, disabled: boolean): string => {
-  if (disabled) return '#9CA3AF';
+  if (disabled) return '#BDC3C7';
   
   switch (variant) {
     case 'primary':
     case 'danger':
       return '#FFFFFF';
     case 'secondary':
-      return '#0066CC';
+      return '#FF6B9D';
     case 'text':
-      return '#0066CC';
+      return '#FF6B9D';
     default:
       return '#FFFFFF';
   }
@@ -67,49 +67,80 @@ const getTextColor = (variant: ButtonVariant, disabled: boolean): string => {
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 8,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   primary: {
-    backgroundColor: '#0066CC',
+    backgroundColor: '#FF6B9D',
     borderWidth: 0,
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   secondary: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#0066CC',
+    borderColor: '#FF6B9D',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   text: {
     backgroundColor: 'transparent',
     borderWidth: 0,
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   danger: {
-    backgroundColor: '#E53E3E',
+    backgroundColor: '#E74C3C',
     borderWidth: 0,
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   disabled: {
-    backgroundColor: '#F3F4F6',
-    borderColor: '#E5E7EB',
+    backgroundColor: '#E8E9EA',
+    borderColor: '#BDC3C7',
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   smallSize: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    minHeight: 32,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    minHeight: 36,
   },
   mediumSize: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 44,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    minHeight: 48,
   },
   largeSize: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingHorizontal: 32,
+    paddingVertical: 18,
     minHeight: 56,
   },
-  text: {
+  textStyle: {
     fontWeight: '600',
+    fontSize: 16,
   },
 });
 

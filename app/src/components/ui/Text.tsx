@@ -11,7 +11,7 @@ interface TextProps extends RNTextProps {
 
 const Text: React.FC<TextProps> = ({
   variant = 'body',
-  color = '#000000',
+  color = '#2C3E50',
   style,
   children,
   ...props
@@ -36,32 +36,32 @@ const styles = StyleSheet.create({
   },
   h1: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: '700',
     lineHeight: 40,
   },
   h2: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    lineHeight: 32,
+    fontSize: 26,
+    fontWeight: '700',
+    lineHeight: 34,
   },
   h3: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    lineHeight: 26,
+    fontSize: 22,
+    fontWeight: '700',
+    lineHeight: 30,
   },
   body: {
     fontSize: 16,
-    fontWeight: '400',
+    fontWeight: '500',
     lineHeight: 24,
   },
   small: {
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '500',
     lineHeight: 20,
   },
   caption: {
     fontSize: 12,
-    fontWeight: '400',
+    fontWeight: '500',
     lineHeight: 16,
   },
 });

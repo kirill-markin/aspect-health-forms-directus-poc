@@ -7,7 +7,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { directusClient, Form, FormVersion, Question, BranchingRule, Response, ResponseItem } from '../api/directus';
 import FormRenderer from '../components/FormRenderer';
 import FormAnswerStore from '../stores/FormAnswerStore';
-import { LinearGradient } from 'expo-linear-gradient';
 
 type RootStackParamList = {
   Home: undefined;
@@ -163,8 +162,8 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066CC" />
-        <Text variant="body" color="#718096" style={styles.loadingText}>Loading form...</Text>
+        <ActivityIndicator size="large" color="#FF6B9D" />
+        <Text variant="body" style={styles.loadingText}>Loading form...</Text>
       </View>
     );
   }
@@ -172,7 +171,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text variant="body" color="#E53E3E" style={styles.errorText}>{error}</Text>
+        <Text variant="body" style={styles.errorText}>{error}</Text>
       </View>
     );
   }
@@ -180,7 +179,7 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (!form || !formVersion || questions.length === 0) {
     return (
       <View style={styles.errorContainer}>
-        <Text variant="body" color="#E53E3E" style={styles.errorText}>Form configuration error</Text>
+        <Text variant="body" style={styles.errorText}>Form configuration error</Text>
       </View>
     );
   }
@@ -188,23 +187,20 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
   if (!answerStore) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0066CC" />
-        <Text variant="body" color="#718096" style={styles.loadingText}>Initializing form...</Text>
+        <ActivityIndicator size="large" color="#FF6B9D" />
+        <Text variant="body" style={styles.loadingText}>Initializing form...</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#0066CC', '#4A90E2']}
-        style={styles.header}
-      >
-        <Text variant="h3" color="#FFFFFF" style={styles.title}>{form.title}</Text>
+      <View style={styles.header}>
+        <Text variant="h3" style={styles.title}>{form.title}</Text>
         {form.description && (
-          <Text variant="body" color="#E6F3FF" style={styles.description}>{form.description}</Text>
+          <Text variant="body" style={styles.description}>{form.description}</Text>
         )}
-      </LinearGradient>
+      </View>
       
       <FormRenderer
         questions={questions}
@@ -220,49 +216,56 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   header: {
     paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    backgroundColor: '#FF6B9D',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   title: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   description: {
-    fontSize: 15,
-    color: '#E6F3FF',
+    fontSize: 16,
+    color: '#FFFFFF',
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 24,
+    opacity: 0.9,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#718096',
+    color: '#7F8C8D',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F5F6FA',
   },
   errorText: {
     fontSize: 18,
-    color: '#E53E3E',
+    color: '#E74C3C',
     textAlign: 'center',
   },
 });

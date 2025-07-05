@@ -33,7 +33,7 @@ const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   none: {
@@ -45,36 +45,36 @@ const styles = StyleSheet.create({
   },
   small: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
     elevation: 2,
   },
   medium: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
     elevation: 4,
   },
   large: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
     elevation: 8,
   },
   nonePadding: {
     padding: 0,
   },
   smallPadding: {
-    padding: 8,
+    padding: 12,
   },
   mediumPadding: {
-    padding: 16,
+    padding: 20,
   },
   largePadding: {
-    padding: 24,
+    padding: 28,
   },
 });
 

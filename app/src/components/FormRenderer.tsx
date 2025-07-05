@@ -290,13 +290,13 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       
       <Card style={styles.questionCard}>
         <View style={styles.questionContent}>
-          <Text variant="small" color="#718096" style={styles.questionNumber}>
+          <Text variant="small" color="#7F8C8D" style={styles.questionNumber}>
             Question {currentQuestionIndex + 1} of {questions.length}
           </Text>
           
-          <Text variant="h3" color="#1A202C" style={styles.questionText}>
+          <Text variant="h3" color="#2C3E50" style={styles.questionText}>
             {currentQuestion.label}
-            {currentQuestion.required && <Text variant="h3" color="#E53E3E"> *</Text>}
+            {currentQuestion.required && <Text variant="h3" color="#E74C3C"> *</Text>}
           </Text>
           
           <View style={styles.fieldContainer}>
@@ -336,64 +336,72 @@ const FormRenderer: React.FC<FormRendererProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#F8FAFC',
+    padding: 20,
+    backgroundColor: '#F5F6FA',
   },
   progressContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   progressTrack: {
-    height: 6,
-    backgroundColor: '#E2E8F0',
-    borderRadius: 3,
+    height: 8,
+    backgroundColor: '#E8E9EA',
+    borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#0066CC',
-    borderRadius: 3,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 4,
   },
   questionCard: {
-    borderRadius: 16,
-    elevation: 3,
+    borderRadius: 24,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
   },
   questionContent: {
-    padding: 20,
+    padding: 28,
   },
   questionNumber: {
     fontSize: 14,
-    color: '#718096',
-    marginBottom: 8,
-    fontWeight: '500',
+    color: '#7F8C8D',
+    marginBottom: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   questionText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    lineHeight: 28,
-    color: '#1A202C',
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 24,
+    lineHeight: 32,
+    color: '#2C3E50',
   },
   required: {
-    color: '#E53E3E',
+    color: '#E74C3C',
   },
   fieldContainer: {
-    marginBottom: 24,
+    marginBottom: 28,
   },
   nextButtonContainer: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
   },
   nextButton: {
-    backgroundColor: '#0066CC',
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 32,
-    minWidth: 120,
+    backgroundColor: '#FF6B9D',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    minWidth: 140,
+    shadowColor: '#FF6B9D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   nextButtonLabel: {
     fontSize: 16,
@@ -402,27 +410,31 @@ const styles = StyleSheet.create({
   },
   backButtonContainer: {
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
   backButton: {
-    borderRadius: 8,
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
   },
   backButtonLabel: {
     fontSize: 16,
-    color: '#718096',
-    fontWeight: '500',
+    color: '#7F8C8D',
+    fontWeight: '600',
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: 18,
     textAlign: 'center',
-    marginTop: 50,
-    color: '#718096',
+    marginTop: 60,
+    color: '#7F8C8D',
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 16,
-    color: '#E53E3E',
+    color: '#E74C3C',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 24,
+    fontWeight: '500',
   },
 });
 

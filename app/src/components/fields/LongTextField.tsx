@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    backgroundColor: '#F7FAFC',
+    backgroundColor: '#FFFFFF',
     minHeight: 120,
   },
 });
