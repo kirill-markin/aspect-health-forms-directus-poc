@@ -302,25 +302,118 @@ export const directusClient = {
     }
   },
 
-  // Save answer to a question
+  // Save answer to a question (upsert: update if exists, create if not)
   async saveAnswer(responseId: string, questionId: string, value: any): Promise<boolean> {
     try {
       await ensureAuthentication();
       
       console.log('Saving answer:', { responseId, questionId, value });
-      await directus.request(
-        createItem('response_items', {
-          response_id: responseId,
-          question_id: questionId,
-          value: JSON.stringify(value)
-        })
-      );
       
-      console.log('Answer saved successfully');
+      // Check if answer already exists
+      const existingAnswers = await directus.request(
+        readItems('response_items', {
+          filter: {
+            response_id: { _eq: responseId },
+            question_id: { _eq: questionId }
+          },
+          limit: 1
+        })
+      ) as ResponseItem[];
+      
+      if (existingAnswers && existingAnswers.length > 0) {
+        // Update existing answer
+        await directus.request(
+          updateItem('response_items', existingAnswers[0].id, {
+            value: JSON.stringify(value)
+          })
+        );
+        console.log('Answer updated successfully');
+      } else {
+        // Create new answer
+        await directus.request(
+          createItem('response_items', {
+            response_id: responseId,
+            question_id: questionId,
+            value: JSON.stringify(value)
+          })
+        );
+        console.log('Answer created successfully');
+      }
+      
       return true;
     } catch (error) {
       console.error('Error saving answer:', error);
       return false;
+    }
+  },
+
+  // Batch save multiple answers
+  async saveAnswersBatch(responseId: string, answers: Array<{ questionId: string; value: any }>): Promise<boolean> {
+    try {
+      await ensureAuthentication();
+      
+      console.log('Batch saving answers:', answers.length);
+      
+      // Get existing answers for this response
+      const existingAnswers = await directus.request(
+        readItems('response_items', {
+          filter: {
+            response_id: { _eq: responseId }
+          }
+        })
+      ) as ResponseItem[];
+      
+      // Process each answer
+      const operations = answers.map(async (answer) => {
+        const existing = existingAnswers.find(a => a.question_id === answer.questionId);
+        
+        if (existing) {
+          // Update existing
+          return directus.request(
+            updateItem('response_items', existing.id, {
+              value: JSON.stringify(answer.value)
+            })
+          );
+        } else {
+          // Create new
+          return directus.request(
+            createItem('response_items', {
+              response_id: responseId,
+              question_id: answer.questionId,
+              value: JSON.stringify(answer.value)
+            })
+          );
+        }
+      });
+      
+      // Execute all operations
+      await Promise.all(operations);
+      
+      console.log('Batch save completed successfully');
+      return true;
+    } catch (error) {
+      console.error('Error batch saving answers:', error);
+      return false;
+    }
+  },
+
+  // Get existing answers for a response
+  async getResponseAnswers(responseId: string): Promise<ResponseItem[]> {
+    try {
+      await ensureAuthentication();
+      
+      const answers = await directus.request(
+        readItems('response_items', {
+          filter: {
+            response_id: { _eq: responseId }
+          }
+        })
+      ) as ResponseItem[];
+      
+      return answers || [];
+    } catch (error) {
+      console.error('Error fetching response answers:', error);
+      return [];
     }
   },
 

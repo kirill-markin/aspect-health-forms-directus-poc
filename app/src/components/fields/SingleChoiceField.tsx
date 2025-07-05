@@ -10,7 +10,13 @@ interface SingleChoiceFieldProps {
 }
 
 const SingleChoiceField: React.FC<SingleChoiceFieldProps> = ({ question, value, onChange }) => {
+  console.log('📻 SingleChoiceField: rendering with value:', value, 'for question:', question.uid);
   const choices: QuestionChoice[] = question.choices || [];
+  
+  const handleChoiceSelect = (choiceValue: string) => {
+    console.log('📻 SingleChoiceField: choice selected:', choiceValue, 'for question:', question.uid);
+    onChange(choiceValue);
+  };
   
   return (
     <View style={styles.container}>
@@ -23,7 +29,7 @@ const SingleChoiceField: React.FC<SingleChoiceFieldProps> = ({ question, value, 
               styles.choiceButton,
               isSelected && styles.selectedChoice
             ]}
-            onPress={() => onChange(choice.value)}
+            onPress={() => handleChoiceSelect(choice.value)}
           >
             <View style={[
               styles.radioCircle,

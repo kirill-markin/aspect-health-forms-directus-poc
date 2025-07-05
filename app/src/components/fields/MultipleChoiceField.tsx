@@ -10,19 +10,25 @@ interface MultipleChoiceFieldProps {
 }
 
 const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, value = [], onChange }) => {
+  console.log('☑️ MultipleChoiceField: rendering with value:', value, 'for question:', question.uid);
   const choices: QuestionChoice[] = question.choices || [];
   
   const handleChoiceToggle = (choiceValue: string) => {
+    console.log('☑️ MultipleChoiceField: handleChoiceToggle called with:', choiceValue);
+    console.log('☑️ MultipleChoiceField: current value:', value);
+    
     const currentSelection = Array.isArray(value) ? value : [];
     const isSelected = currentSelection.includes(choiceValue);
     
     if (isSelected) {
       // Remove from selection
       const newSelection = currentSelection.filter(v => v !== choiceValue);
+      console.log('☑️ MultipleChoiceField: removing choice, new selection:', newSelection);
       onChange(newSelection);
     } else {
       // Add to selection
       const newSelection = [...currentSelection, choiceValue];
+      console.log('☑️ MultipleChoiceField: adding choice, new selection:', newSelection);
       onChange(newSelection);
     }
   };
@@ -106,8 +112,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#0066CC',
   },
   checkmarkContainer: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -119,15 +125,15 @@ const styles = StyleSheet.create({
     width: 2,
     height: 6,
     transform: [{ rotate: '45deg' }],
-    left: 4,
-    top: 6,
+    left: 5,
+    top: 7,
   },
   checkmarkLong: {
     width: 2,
     height: 10,
     transform: [{ rotate: '-45deg' }],
-    right: 2,
-    top: 2,
+    right: 3,
+    top: 3,
   },
   choiceText: {
     fontSize: 16,

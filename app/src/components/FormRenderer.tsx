@@ -3,6 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Text, Button, Card } from './ui';
 import { Question, ResponseItem, BranchingRule } from '../api/directus';
 import BranchingEngine from '../utils/branching';
+import FormAnswerStore from '../stores/FormAnswerStore';
 import ShortTextField from './fields/ShortTextField';
 import LongTextField from './fields/LongTextField';
 import SingleChoiceField from './fields/SingleChoiceField';
@@ -12,8 +13,7 @@ import NPSField from './fields/NPSField';
 interface FormRendererProps {
   questions: Question[];
   branchingRules: BranchingRule[];
-  answers: ResponseItem[];
-  onAnswerChange: (questionUid: string, value: any) => void;
+  answerStore: FormAnswerStore;
   onComplete: (exitKey?: string) => void;
   hiddenFields?: Record<string, any>;
 }
@@ -37,8 +37,7 @@ const CustomProgressBar: React.FC<{ progress: number }> = ({ progress }) => {
 const FormRenderer: React.FC<FormRendererProps> = ({
   questions,
   branchingRules,
-  answers,
-  onAnswerChange,
+  answerStore,
   onComplete,
   hiddenFields = {}
 }) => {
@@ -46,35 +45,46 @@ const FormRenderer: React.FC<FormRendererProps> = ({
   const [branchingEngine, setBranchingEngine] = useState<BranchingEngine | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [canProceed, setCanProceed] = useState(false);
-  // Local state for current answers (UI only, not saved to server)
-  const [localAnswers, setLocalAnswers] = useState<Map<string, any>>(new Map());
+  const [currentAnswers, setCurrentAnswers] = useState<Map<string, any>>(new Map());
 
-  // Initialize branching engine ONLY once
+  // Initialize branching engine and answer store listeners
   useEffect(() => {
-    console.log('🔄 FormRenderer: Initializing branching engine with answers:', answers.length);
-    const engine = new BranchingEngine(branchingRules, questions, answers, hiddenFields);
-    setBranchingEngine(engine);
+    console.log('🔄 FormRenderer: Initializing branching engine');
     
-    // Initialize local answers from server answers
-    const initialLocalAnswers = new Map<string, any>();
-    answers.forEach(answer => {
-      const question = questions.find(q => q.id === answer.question_id);
+    // Get current answers from store
+    const currentAnswers = answerStore.getAllAnswers();
+    
+    // Convert to ResponseItem format for branching engine
+    const responseItems: ResponseItem[] = [];
+    currentAnswers.forEach((value, questionUid) => {
+      const question = questions.find(q => q.uid === questionUid);
       if (question) {
-        // Parse JSON value back to original format (if it's JSON)
-        let value = answer.value;
-        if (typeof value === 'string') {
-          try {
-            if (value.startsWith('"') || value.startsWith('[') || value.startsWith('{')) {
-              value = JSON.parse(value);
-            }
-          } catch (error) {
-            console.error('Error parsing answer value:', error);
-          }
-        }
-        initialLocalAnswers.set(question.uid, value);
+        responseItems.push({
+          id: `temp_${question.id}`,
+          response_id: 'temp',
+          question_id: question.id,
+          value: value
+        });
       }
     });
-    setLocalAnswers(initialLocalAnswers);
+    
+    const engine = new BranchingEngine(branchingRules, questions, responseItems, hiddenFields);
+    setBranchingEngine(engine);
+    
+    // Setup answer store listeners
+    answerStore.onSaveStateChange((saving: boolean, hasUnsaved: boolean) => {
+      // Console logging only - no UI state updates
+      console.log('💾 FormRenderer: Save state changed - saving:', saving, 'hasUnsaved:', hasUnsaved);
+    });
+    
+    // Setup answer change listener to update React state
+    answerStore.onAnswerChange((questionUid: string, value: any) => {
+      console.log('📝 FormRenderer: Answer changed in store - updating React state');
+      setCurrentAnswers(new Map(answerStore.getAllAnswers()));
+    });
+    
+    // Initialize currentAnswers with current store state
+    setCurrentAnswers(new Map(answerStore.getAllAnswers()));
     
     // Get first question ONLY during initial load
     console.log('🔄 FormRenderer: Getting first question...');
@@ -92,7 +102,7 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       setCurrentQuestionIndex(0);
       checkCanProceed(firstQuestion);
     }
-  }, [questions, branchingRules, hiddenFields]); // Remove 'answers' from dependencies
+  }, [questions, branchingRules, hiddenFields, answerStore]);
 
   // Check if user can proceed (required questions answered)
   const checkCanProceed = useCallback((question: Question) => {
@@ -101,94 +111,47 @@ const FormRenderer: React.FC<FormRendererProps> = ({
       return;
     }
     
-    // Check local answers for current question
-    const localAnswer = localAnswers.get(question.uid);
-    const hasAnswer = localAnswer !== null && localAnswer !== undefined && 
-                     (Array.isArray(localAnswer) ? localAnswer.length > 0 : String(localAnswer).trim() !== '');
+    // Check current answers for current question
+    const answer = currentAnswers.get(question.uid);
+    const hasAnswer = answer !== null && answer !== undefined && 
+                     (Array.isArray(answer) ? answer.length > 0 : String(answer).trim() !== '');
     setCanProceed(hasAnswer);
-  }, [localAnswers]);
+  }, [currentAnswers]);
 
-  // Handle answer changes (local only, not saved to server)
+  // Handle answer changes (update answer store)
   const handleAnswerChange = (value: any) => {
     if (!currentQuestion) return;
     
-    // Update local state only
-    const newLocalAnswers = new Map(localAnswers);
-    newLocalAnswers.set(currentQuestion.uid, value);
-    setLocalAnswers(newLocalAnswers);
+    // Update answer store (will trigger autosave)
+    answerStore.updateAnswer(currentQuestion.uid, currentQuestion.id, value);
     
-    // Update canProceed based on local state
+    // Update canProceed based on current answer
     checkCanProceed(currentQuestion);
     
     // Auto-advance for single choice questions
     if (currentQuestion.type === 'single_choice' && value) {
-      // Add small delay to show selection feedback, then save and proceed
+      // Add small delay to show selection feedback, then proceed with the specific value
       setTimeout(() => {
-        saveCurrentAnswerAndProceed(value);
+        proceedToNextWithValue(value);
       }, 300);
     }
   };
 
-  // Save current answer to server and proceed to next question
-  const saveCurrentAnswerAndProceed = async (value?: any) => {
-    console.log('💾 FormRenderer: saveCurrentAnswerAndProceed called with value:', value);
+  // Proceed to next question using branching engine with specific value
+  const proceedToNextWithValue = (answerValue?: any) => {
+    console.log('➡️ FormRenderer: proceedToNextWithValue called with:', answerValue);
     if (!currentQuestion || !branchingEngine) return;
     
-    // Get value from parameter or local state
-    const answerValue = value !== undefined ? value : localAnswers.get(currentQuestion.uid);
-    console.log('💾 FormRenderer: Answer value to save:', answerValue, 'for question:', currentQuestion.uid);
+    // Use provided value or get current answer from React state
+    const currentAnswer = answerValue !== undefined ? answerValue : currentAnswers.get(currentQuestion.uid);
+    console.log('➡️ FormRenderer: Using answer value:', currentAnswer, 'for question:', currentQuestion.uid);
     
-    if (answerValue !== undefined) {
-      // Update local answers FIRST (synchronously in the new Map)
-      const newLocalAnswers = new Map(localAnswers);
-      newLocalAnswers.set(currentQuestion.uid, answerValue);
-      setLocalAnswers(newLocalAnswers);
-      console.log('💾 FormRenderer: Updated local answers with value:', answerValue);
-      
-      // Save to server
-      console.log('💾 FormRenderer: Saving to server...');
-      onAnswerChange(currentQuestion.uid, answerValue);
-      
-      // IMPORTANT: Update branching engine with current answer BEFORE applying rules
-      console.log('💾 FormRenderer: Updating branching engine...');
-      branchingEngine.updateAnswer(currentQuestion.uid, answerValue);
-      
-      // Wait a bit for save to complete, then proceed with the updated local answers
-      console.log('💾 FormRenderer: Scheduling handleNext with updated answers...');
-      setTimeout(() => {
-        handleNextWithUpdatedAnswers(newLocalAnswers);
-      }, 100);
-    }
-  };
-
-  // Handle next button with specific local answers (to avoid stale state)
-  const handleNextWithUpdatedAnswers = (updatedLocalAnswers?: Map<string, any>) => {
-    console.log('➡️ FormRenderer: handleNextWithUpdatedAnswers called');
-    if (!currentQuestion || !branchingEngine) return;
-    
-    // Use provided updated answers or current local answers
-    const currentLocalAnswers = updatedLocalAnswers || localAnswers;
-    
-    // Save current answer to server if not already saved (for manual Next button clicks)
-    const localAnswer = currentLocalAnswers.get(currentQuestion.uid);
-    if (localAnswer !== undefined) {
-      console.log('➡️ FormRenderer: Local answer found:', localAnswer, 'for question:', currentQuestion.uid);
-      // Check if branching engine already has this answer
-      const engineAnswer = branchingEngine.getAnswer(currentQuestion.uid);
-      console.log('➡️ FormRenderer: Engine answer:', engineAnswer, 'vs local answer:', localAnswer);
-      
-      if (engineAnswer !== localAnswer) {
-        console.log('➡️ FormRenderer: Answer differs in engine, updating both server and engine');
-        // Save to server
-        onAnswerChange(currentQuestion.uid, localAnswer);
-        // Update branching engine with current answer
-        branchingEngine.updateAnswer(currentQuestion.uid, localAnswer);
-      } else {
-        console.log('➡️ FormRenderer: Answer already matches in engine, skipping save');
-      }
+    // Update branching engine with current answer
+    if (currentAnswer !== undefined) {
+      branchingEngine.updateAnswer(currentQuestion.uid, currentAnswer);
     }
     
-    console.log('➡️ FormRenderer: Getting next action for question:', currentQuestion.uid);
+    // Get next action
     const nextAction = branchingEngine.getNextAction(currentQuestion.uid);
     
     if (nextAction.shouldExit) {
@@ -209,10 +172,16 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     }
   };
 
+  // Proceed to next question using branching engine
+  const proceedToNext = () => {
+    console.log('➡️ FormRenderer: proceedToNext called');
+    proceedToNextWithValue();
+  };
+
   // Handle next button (public interface)
   const handleNext = () => {
     console.log('➡️ FormRenderer: handleNext called (public interface)');
-    handleNextWithUpdatedAnswers();
+    proceedToNext();
   };
 
   // Handle back button
@@ -225,34 +194,10 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     }
   };
 
-  // Get current answer (check local first, then server)
+  // Get current answer from React state (synchronized with answer store)
   const getCurrentAnswer = () => {
     if (!currentQuestion) return null;
-    
-    // First check local answers
-    const localAnswer = localAnswers.get(currentQuestion.uid);
-    if (localAnswer !== undefined) {
-      return localAnswer;
-    }
-    
-    // Fallback to server answers
-    const answerItem = answers.find(a => a.question_id === currentQuestion.id);
-    if (!answerItem?.value) return null;
-    
-    // Parse JSON value back to original format (if it's JSON)
-    if (typeof answerItem.value === 'string') {
-      try {
-        // Only parse if it looks like JSON (starts with quotes, brackets, or braces)
-        if (answerItem.value.startsWith('"') || answerItem.value.startsWith('[') || answerItem.value.startsWith('{')) {
-          return JSON.parse(answerItem.value);
-        }
-      } catch (error) {
-        console.error('Error parsing answer value:', error);
-        // Fall through to return original value
-      }
-    }
-    
-    return answerItem.value;
+    return currentAnswers.get(currentQuestion.uid);
   };
 
   // Calculate progress
