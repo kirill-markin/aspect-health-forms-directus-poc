@@ -56,7 +56,7 @@ async function seedData() {
         const formData = {
             slug: "privacy-policy-demo",
             title: "Privacy Policy Demo",
-            description: "Демонстрация формы с проверкой политики безопасности",
+            description: "Privacy policy demo form",
             status: "published",
             exit_map: {
                 "success": "https://example.com/success",
@@ -84,7 +84,7 @@ async function seedData() {
             {
                 form_version_id: createdFormVersion.id,
                 uid: "privacy_policy",
-                label: "Принимаете ли вы нашу политику безопасности?",
+                label: "Do you accept our privacy policy?",
                 type: "multiple_choice",
                 required: true,
                 order: 1
@@ -92,7 +92,7 @@ async function seedData() {
             {
                 form_version_id: createdFormVersion.id,
                 uid: "privacy_rejection",
-                label: "К сожалению, мы не можем продолжить без принятия нашей политики безопасности. Пожалуйста, примите её для продолжения.",
+                label: "Unfortunately, we cannot proceed without accepting our privacy policy. Please accept it to continue.",
                 type: "multiple_choice",
                 required: true,
                 order: 2
@@ -100,7 +100,7 @@ async function seedData() {
             {
                 form_version_id: createdFormVersion.id,
                 uid: "platform_purpose",
-                label: "Что привело вас на нашу платформу?",
+                label: "What brought you to our platform?",
                 type: "multiple_choice",
                 required: true,
                 order: 3
@@ -108,7 +108,7 @@ async function seedData() {
             {
                 form_version_id: createdFormVersion.id,
                 uid: "about_yourself",
-                label: "Расскажите немного о себе:",
+                label: "Tell us a bit about yourself:",
                 type: "short_text",
                 required: true,
                 order: 4
@@ -116,7 +116,7 @@ async function seedData() {
             {
                 form_version_id: createdFormVersion.id,
                 uid: "detailed_goals",
-                label: "Расскажите подробнее о ваших целях и интересах:",
+                label: "Tell us more about your goals and interests:",
                 type: "long_text",
                 required: false,
                 order: 5
@@ -138,8 +138,8 @@ async function seedData() {
         const privacyPolicyQuestion = createdQuestions.find(q => q.uid === 'privacy_policy');
         if (privacyPolicyQuestion) {
             const privacyChoicesData = [
-                { question_id: privacyPolicyQuestion.id, label: "Да, принимаю", value: "yes", order: 1 },
-                { question_id: privacyPolicyQuestion.id, label: "Нет, не принимаю", value: "no", order: 2 }
+                { question_id: privacyPolicyQuestion.id, label: "Yes, I accept", value: "yes", order: 1 },
+                { question_id: privacyPolicyQuestion.id, label: "No, I don't accept", value: "no", order: 2 }
             ];
             
             for (const choiceData of privacyChoicesData) {
@@ -167,10 +167,10 @@ async function seedData() {
         const platformPurposeQuestion = createdQuestions.find(q => q.uid === 'platform_purpose');
         if (platformPurposeQuestion) {
             const purposeChoicesData = [
-                { question_id: platformPurposeQuestion.id, label: "Обучение", value: "learning", order: 1 },
-                { question_id: platformPurposeQuestion.id, label: "Бизнес", value: "business", order: 2 },
-                { question_id: platformPurposeQuestion.id, label: "Личное использование", value: "personal", order: 3 },
-                { question_id: platformPurposeQuestion.id, label: "Другое", value: "other", order: 4 }
+                { question_id: platformPurposeQuestion.id, label: "Learning", value: "learning", order: 1 },
+                { question_id: platformPurposeQuestion.id, label: "Business", value: "business", order: 2 },
+                { question_id: platformPurposeQuestion.id, label: "Personal use", value: "personal", order: 3 },
+                { question_id: platformPurposeQuestion.id, label: "Other", value: "other", order: 4 }
             ];
             
             for (const choiceData of purposeChoicesData) {
