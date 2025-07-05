@@ -28,20 +28,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const loadAvailableForms = async () => {
     try {
-      console.log('Starting to load forms...');
+      console.log('Starting to load all forms...');
       setLoading(true);
       
-      // For the POC, we'll hardcode the demo form
-      // In a real app, you'd fetch all published forms
-      console.log('Fetching form with slug: demo-health-survey');
-      const demoForm = await directusClient.getFormBySlug('demo-health-survey');
-      console.log('Form fetched:', demoForm);
+      // Fetch all published forms
+      console.log('Fetching all published forms');
+      const allForms = await directusClient.getAllPublishedForms();
+      console.log('Forms fetched:', allForms);
       
-      if (demoForm) {
-        setForms([demoForm]);
-        console.log('Form loaded successfully');
+      if (allForms && allForms.length > 0) {
+        setForms(allForms);
+        console.log('Forms loaded successfully:', allForms.length);
+        setError(null);
       } else {
-        console.log('No form found');
+        console.log('No forms found');
         setError('No forms available');
       }
     } catch (err) {

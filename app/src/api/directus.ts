@@ -124,6 +124,31 @@ export interface ResponseItem {
 
 // API Functions (modern SDK pattern)
 export const directusClient = {
+  // Get all published forms
+  async getAllPublishedForms(): Promise<Form[]> {
+    try {
+      await ensureAuthentication();
+      
+      console.log('Getting all published forms');
+      const response = await directus.request(
+        readItems('forms', {
+          filter: {
+            status: { _eq: 'published' }
+          },
+          sort: ['created_at']
+        })
+      );
+      
+      console.log('All forms API response:', response);
+      const forms = (response as Form[]) || [];
+      console.log('Forms found:', forms.length);
+      return forms;
+    } catch (error) {
+      console.error('Error fetching forms:', error);
+      return [];
+    }
+  },
+
   // Get published form by slug
   async getFormBySlug(slug: string): Promise<Form | null> {
     try {

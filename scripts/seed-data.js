@@ -54,14 +54,13 @@ async function seedData() {
         // Step 1: Create forms (without ID)
         console.log('📝 Creating forms...');
         const formData = {
-            slug: "demo-health-survey",
-            title: "Health Survey Demo",
-            description: "A demonstration health survey form with conditional logic",
+            slug: "privacy-policy-demo",
+            title: "Privacy Policy Demo",
+            description: "Демонстрация формы с проверкой политики безопасности",
             status: "published",
             exit_map: {
                 "success": "https://example.com/success",
-                "incomplete": "https://example.com/incomplete",
-                "high_risk": "https://example.com/high-risk"
+                "incomplete": "https://example.com/incomplete"
             }
         };
         const createdForm = await directus.items('forms').createOne(formData);
@@ -84,35 +83,43 @@ async function seedData() {
         const questionsData = [
             {
                 form_version_id: createdFormVersion.id,
-                uid: "general_health",
-                label: "How would you rate your general health?",
+                uid: "privacy_policy",
+                label: "Принимаете ли вы нашу политику безопасности?",
                 type: "multiple_choice",
                 required: true,
                 order: 1
             },
             {
                 form_version_id: createdFormVersion.id,
-                uid: "health_concerns",
-                label: "Please describe any specific health concerns you have:",
-                type: "long_text",
-                required: false,
+                uid: "privacy_rejection",
+                label: "К сожалению, мы не можем продолжить без принятия нашей политики безопасности. Пожалуйста, примите её для продолжения.",
+                type: "multiple_choice",
+                required: true,
                 order: 2
             },
             {
                 form_version_id: createdFormVersion.id,
-                uid: "satisfaction_rating",
-                label: "How satisfied are you with your current healthcare provider?",
-                type: "nps",
+                uid: "platform_purpose",
+                label: "Что привело вас на нашу платформу?",
+                type: "multiple_choice",
                 required: true,
                 order: 3
             },
             {
                 form_version_id: createdFormVersion.id,
-                uid: "contact_info",
-                label: "Please provide your contact information:",
+                uid: "about_yourself",
+                label: "Расскажите немного о себе:",
                 type: "short_text",
                 required: true,
                 order: 4
+            },
+            {
+                form_version_id: createdFormVersion.id,
+                uid: "detailed_goals",
+                label: "Расскажите подробнее о ваших целях и интересах:",
+                type: "long_text",
+                required: false,
+                order: 5
             }
         ];
         
@@ -124,18 +131,49 @@ async function seedData() {
             await sleep(500);
         }
         
-        // Step 4: Create question choices for the multiple choice question
+        // Step 4: Create question choices for the multiple choice questions
         console.log('📝 Creating question choices...');
-        const generalHealthQuestion = createdQuestions.find(q => q.uid === 'general_health');
-        if (generalHealthQuestion) {
-            const choicesData = [
-                { question_id: generalHealthQuestion.id, label: "Excellent", value: "excellent", order: 1 },
-                { question_id: generalHealthQuestion.id, label: "Good", value: "good", order: 2 },
-                { question_id: generalHealthQuestion.id, label: "Fair", value: "fair", order: 3 },
-                { question_id: generalHealthQuestion.id, label: "Poor", value: "poor", order: 4 }
+        
+        // Privacy policy question choices
+        const privacyPolicyQuestion = createdQuestions.find(q => q.uid === 'privacy_policy');
+        if (privacyPolicyQuestion) {
+            const privacyChoicesData = [
+                { question_id: privacyPolicyQuestion.id, label: "Да, принимаю", value: "yes", order: 1 },
+                { question_id: privacyPolicyQuestion.id, label: "Нет, не принимаю", value: "no", order: 2 }
             ];
             
-            for (const choiceData of choicesData) {
+            for (const choiceData of privacyChoicesData) {
+                const createdChoice = await directus.items('question_choices').createOne(choiceData);
+                console.log(`✅ Created choice "${choiceData.label}" with ID: ${createdChoice.id}`);
+                await sleep(300);
+            }
+        }
+        
+        // Privacy rejection question choice
+        const privacyRejectionQuestion = createdQuestions.find(q => q.uid === 'privacy_rejection');
+        if (privacyRejectionQuestion) {
+            const rejectionChoicesData = [
+                { question_id: privacyRejectionQuestion.id, label: "OK", value: "ok", order: 1 }
+            ];
+            
+            for (const choiceData of rejectionChoicesData) {
+                const createdChoice = await directus.items('question_choices').createOne(choiceData);
+                console.log(`✅ Created choice "${choiceData.label}" with ID: ${createdChoice.id}`);
+                await sleep(300);
+            }
+        }
+        
+        // Platform purpose question choices
+        const platformPurposeQuestion = createdQuestions.find(q => q.uid === 'platform_purpose');
+        if (platformPurposeQuestion) {
+            const purposeChoicesData = [
+                { question_id: platformPurposeQuestion.id, label: "Обучение", value: "learning", order: 1 },
+                { question_id: platformPurposeQuestion.id, label: "Бизнес", value: "business", order: 2 },
+                { question_id: platformPurposeQuestion.id, label: "Личное использование", value: "personal", order: 3 },
+                { question_id: platformPurposeQuestion.id, label: "Другое", value: "other", order: 4 }
+            ];
+            
+            for (const choiceData of purposeChoicesData) {
                 const createdChoice = await directus.items('question_choices').createOne(choiceData);
                 console.log(`✅ Created choice "${choiceData.label}" with ID: ${createdChoice.id}`);
                 await sleep(300);
@@ -144,65 +182,62 @@ async function seedData() {
         
         // Step 5: Create branching rules
         console.log('📝 Creating branching rules...');
-        const healthConcernsQuestion = createdQuestions.find(q => q.uid === 'health_concerns');
-        const satisfactionQuestion = createdQuestions.find(q => q.uid === 'satisfaction_rating');
+        const aboutYourselfQuestion = createdQuestions.find(q => q.uid === 'about_yourself');
+        const detailedGoalsQuestion = createdQuestions.find(q => q.uid === 'detailed_goals');
         
-        if (generalHealthQuestion && healthConcernsQuestion && satisfactionQuestion) {
-            // First, create rules with target_question_id
-            const simpleRulesData = [
+        if (privacyPolicyQuestion && privacyRejectionQuestion && platformPurposeQuestion && aboutYourselfQuestion && detailedGoalsQuestion) {
+            // Privacy policy branching rules
+            const branchingRulesData = [
                 {
                     form_version_id: createdFormVersion.id,
-                    question_id: generalHealthQuestion.id,
+                    question_id: privacyPolicyQuestion.id,
                     operator: "eq",
-                    value: JSON.stringify("poor"),
-                    target_question_id: healthConcernsQuestion.id,
+                    value: JSON.stringify("no"),
+                    target_question_id: privacyRejectionQuestion.id,
                     order: 1
                 },
                 {
                     form_version_id: createdFormVersion.id,
-                    question_id: generalHealthQuestion.id,
-                    operator: "in",
-                    value: JSON.stringify(["excellent", "good"]),
-                    target_question_id: satisfactionQuestion.id,
+                    question_id: privacyRejectionQuestion.id,
+                    operator: "eq",
+                    value: JSON.stringify("ok"),
+                    target_question_id: privacyPolicyQuestion.id,
                     order: 2
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: privacyPolicyQuestion.id,
+                    operator: "eq",
+                    value: JSON.stringify("yes"),
+                    target_question_id: platformPurposeQuestion.id,
+                    order: 3
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: platformPurposeQuestion.id,
+                    operator: "is_not_empty",
+                    value: JSON.stringify(null),
+                    target_question_id: aboutYourselfQuestion.id,
+                    order: 4
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: aboutYourselfQuestion.id,
+                    operator: "is_not_empty",
+                    value: JSON.stringify(null),
+                    target_question_id: detailedGoalsQuestion.id,
+                    order: 5
                 }
             ];
             
-            for (const ruleData of simpleRulesData) {
+            for (const ruleData of branchingRulesData) {
                 const createdRule = await directus.items('branching_rules').createOne(ruleData);
                 console.log(`✅ Created branching rule with ID: ${createdRule.id}`);
                 await sleep(300);
             }
             
-            // Create exit rules (using last question as target)
-            console.log('📝 Creating exit rules...');
-            const contactInfoQuestion = createdQuestions.find(q => q.uid === 'contact_info');
-            const exitRulesData = [
-                {
-                    form_version_id: createdFormVersion.id,
-                    question_id: satisfactionQuestion.id,
-                    operator: "lt",
-                    value: JSON.stringify(5),
-                    target_question_id: contactInfoQuestion.id,
-                    exit_key: "high_risk",
-                    order: 3
-                },
-                {
-                    form_version_id: createdFormVersion.id,
-                    question_id: satisfactionQuestion.id,
-                    operator: "gt",
-                    value: JSON.stringify(8),
-                    target_question_id: contactInfoQuestion.id,
-                    exit_key: "success",
-                    order: 4
-                }
-            ];
-            
-            for (const ruleData of exitRulesData) {
-                const createdRule = await directus.items('branching_rules').createOne(ruleData);
-                console.log(`✅ Created exit rule with ID: ${createdRule.id} (exit: ${ruleData.exit_key})`);
-                await sleep(300);
-            }
+            // Exit rule is not needed - frontend can detect completion when no more questions
+            console.log('✅ Branching rules completed - frontend will handle form completion logic');
         }
         
         console.log('🎉 Seed data insertion completed!');

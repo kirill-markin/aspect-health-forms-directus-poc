@@ -40,10 +40,11 @@ const DemoFormScreen: React.FC<DemoFormScreenProps> = ({ navigation, route }) =>
     try {
       setLoading(true);
       
-      // Load demo form by slug
-      const formData = await directusClient.getFormBySlug('demo-health-survey');
+      // Load form by slug from route parameters
+      const formSlug = route.params.formSlug;
+      const formData = await directusClient.getFormBySlug(formSlug);
       if (!formData) {
-        setError('Demo form not found');
+        setError(`Form '${formSlug}' not found`);
         return;
       }
       
