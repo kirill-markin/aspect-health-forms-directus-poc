@@ -35,6 +35,7 @@ const LongTextField: React.FC<LongTextFieldProps> = ({ question, value, onChange
         numberOfLines={4}
         autoCapitalize="sentences"
         autoCorrect={true}
+        autoFocus={true}
         style={styles.input}
       />
     </View>

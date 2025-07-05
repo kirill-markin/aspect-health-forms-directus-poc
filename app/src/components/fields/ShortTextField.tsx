@@ -34,6 +34,7 @@ const ShortTextField: React.FC<ShortTextFieldProps> = ({ question, value, onChan
         multiline={false}
         autoCapitalize="sentences"
         autoCorrect={true}
+        autoFocus={true}
         style={styles.input}
       />
     </View>
