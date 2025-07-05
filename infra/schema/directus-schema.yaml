@@ -584,6 +584,8 @@ fields:
             value: short_text
           - text: Long Text
             value: long_text
+          - text: Single Choice
+            value: single_choice
           - text: Multiple Choice
             value: multiple_choice
           - text: NPS

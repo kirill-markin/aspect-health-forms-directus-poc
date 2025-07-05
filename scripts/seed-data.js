@@ -85,7 +85,7 @@ async function seedData() {
                 form_version_id: createdFormVersion.id,
                 uid: "privacy_policy",
                 label: "Do you accept our privacy policy?",
-                type: "multiple_choice",
+                type: "single_choice",
                 required: true,
                 order: 1
             },
@@ -93,7 +93,7 @@ async function seedData() {
                 form_version_id: createdFormVersion.id,
                 uid: "privacy_rejection",
                 label: "Unfortunately, we cannot proceed without accepting our privacy policy. Please accept it to continue.",
-                type: "multiple_choice",
+                type: "single_choice",
                 required: true,
                 order: 2
             },
@@ -101,7 +101,7 @@ async function seedData() {
                 form_version_id: createdFormVersion.id,
                 uid: "platform_purpose",
                 label: "What brought you to our platform?",
-                type: "multiple_choice",
+                type: "single_choice",
                 required: true,
                 order: 3
             },
@@ -115,11 +115,19 @@ async function seedData() {
             },
             {
                 form_version_id: createdFormVersion.id,
+                uid: "interests",
+                label: "What areas are you interested in? (Select all that apply)",
+                type: "multiple_choice",
+                required: false,
+                order: 5
+            },
+            {
+                form_version_id: createdFormVersion.id,
                 uid: "detailed_goals",
                 label: "Tell us more about your goals and interests:",
                 type: "long_text",
                 required: false,
-                order: 5
+                order: 6
             }
         ];
         
@@ -180,12 +188,32 @@ async function seedData() {
             }
         }
         
+        // Interests question choices
+        const interestsQuestion = createdQuestions.find(q => q.uid === 'interests');
+        if (interestsQuestion) {
+            const interestsChoicesData = [
+                { question_id: interestsQuestion.id, label: "Technology", value: "technology", order: 1 },
+                { question_id: interestsQuestion.id, label: "Health & Wellness", value: "health", order: 2 },
+                { question_id: interestsQuestion.id, label: "Education", value: "education", order: 3 },
+                { question_id: interestsQuestion.id, label: "Finance", value: "finance", order: 4 },
+                { question_id: interestsQuestion.id, label: "Arts & Culture", value: "arts", order: 5 },
+                { question_id: interestsQuestion.id, label: "Sports & Recreation", value: "sports", order: 6 }
+            ];
+            
+            for (const choiceData of interestsChoicesData) {
+                const createdChoice = await directus.items('question_choices').createOne(choiceData);
+                console.log(`✅ Created choice "${choiceData.label}" with ID: ${createdChoice.id}`);
+                await sleep(300);
+            }
+        }
+
         // Step 5: Create branching rules
         console.log('📝 Creating branching rules...');
         const aboutYourselfQuestion = createdQuestions.find(q => q.uid === 'about_yourself');
+        const interestsQuestionRef = createdQuestions.find(q => q.uid === 'interests');
         const detailedGoalsQuestion = createdQuestions.find(q => q.uid === 'detailed_goals');
         
-        if (privacyPolicyQuestion && privacyRejectionQuestion && platformPurposeQuestion && aboutYourselfQuestion && detailedGoalsQuestion) {
+        if (privacyPolicyQuestion && privacyRejectionQuestion && platformPurposeQuestion && aboutYourselfQuestion && interestsQuestionRef && detailedGoalsQuestion) {
             // Privacy policy branching rules
             const branchingRulesData = [
                 {
@@ -225,8 +253,16 @@ async function seedData() {
                     question_id: aboutYourselfQuestion.id,
                     operator: "is_not_empty",
                     value: JSON.stringify(null),
-                    target_question_id: detailedGoalsQuestion.id,
+                    target_question_id: interestsQuestionRef.id,
                     order: 5
+                },
+                {
+                    form_version_id: createdFormVersion.id,
+                    question_id: interestsQuestionRef.id,
+                    operator: "is_not_empty",
+                    value: JSON.stringify(null),
+                    target_question_id: detailedGoalsQuestion.id,
+                    order: 6
                 }
             ];
             

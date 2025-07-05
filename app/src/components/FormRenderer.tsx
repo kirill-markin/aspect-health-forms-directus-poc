@@ -5,6 +5,7 @@ import { Question, ResponseItem, BranchingRule } from '../api/directus';
 import BranchingEngine from '../utils/branching';
 import ShortTextField from './fields/ShortTextField';
 import LongTextField from './fields/LongTextField';
+import SingleChoiceField from './fields/SingleChoiceField';
 import MultipleChoiceField from './fields/MultipleChoiceField';
 import NPSField from './fields/NPSField';
 
@@ -84,6 +85,14 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     branchingEngine.updateAnswer(currentQuestion.uid, value);
     onAnswerChange(currentQuestion.uid, value);
     checkCanProceed(currentQuestion, branchingEngine);
+    
+    // Auto-advance for single choice questions
+    if (currentQuestion.type === 'single_choice' && value) {
+      // Add small delay to show selection feedback
+      setTimeout(() => {
+        handleNext();
+      }, 300);
+    }
   };
 
   // Handle next button
@@ -146,6 +155,18 @@ const FormRenderer: React.FC<FormRendererProps> = ({
     return branchingEngine.calculateProgress(currentQuestion.uid) / 100;
   };
 
+  // Check if current question should show Next button
+  const shouldShowNextButton = () => {
+    if (!currentQuestion) return false;
+    
+    // Hide Next button for single choice questions since they auto-advance
+    if (currentQuestion.type === 'single_choice') {
+      return false;
+    }
+    
+    return true;
+  };
+
   // Render question field based on type
   const renderQuestionField = () => {
     if (!currentQuestion) return null;
@@ -171,11 +192,22 @@ const FormRenderer: React.FC<FormRendererProps> = ({
           />
         );
       
+      case 'single_choice':
+        return (
+          <SingleChoiceField
+            question={currentQuestion}
+            value={currentAnswer}
+            onChange={handleAnswerChange}
+          />
+        );
+      
       case 'multiple_choice':
+        // Ensure we always pass an array for multiple choice
+        const multipleChoiceValue = Array.isArray(currentAnswer) ? currentAnswer : (currentAnswer ? [currentAnswer] : []);
         return (
           <MultipleChoiceField
             question={currentQuestion}
-            value={currentAnswer}
+            value={multipleChoiceValue}
             onChange={handleAnswerChange}
           />
         );
@@ -226,15 +258,17 @@ const FormRenderer: React.FC<FormRendererProps> = ({
           </View>
 
           {/* Next button positioned under the form values */}
-          <View style={styles.nextButtonContainer}>
-            <Button
-              variant="primary"
-              title={currentQuestionIndex === questions.length - 1 ? 'Complete' : 'Next'}
-              onPress={handleNext}
-              disabled={!canProceed}
-              style={styles.nextButton}
-            />
-          </View>
+          {shouldShowNextButton() && (
+            <View style={styles.nextButtonContainer}>
+              <Button
+                variant="primary"
+                title={currentQuestionIndex === questions.length - 1 ? 'Complete' : 'Next'}
+                onPress={handleNext}
+                disabled={!canProceed}
+                style={styles.nextButton}
+              />
+            </View>
+          )}
         </View>
       </Card>
       

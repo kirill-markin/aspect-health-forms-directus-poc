@@ -75,7 +75,7 @@ export interface Question {
   form_version_id: string;
   uid: string;
   label: string;
-  type: 'short_text' | 'long_text' | 'multiple_choice' | 'nps';
+  type: 'short_text' | 'long_text' | 'single_choice' | 'multiple_choice' | 'nps';
   required: boolean;
   order: number;
   settings_json: Record<string, any>;

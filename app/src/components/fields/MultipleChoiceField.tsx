@@ -5,17 +5,41 @@ import { Question, QuestionChoice } from '../../api/directus';
 
 interface MultipleChoiceFieldProps {
   question: Question;
-  value: string;
-  onChange: (value: string) => void;
+  value: string[];
+  onChange: (value: string[]) => void;
 }
 
-const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, value, onChange }) => {
+const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, value = [], onChange }) => {
   const choices: QuestionChoice[] = question.choices || [];
+  
+  const handleChoiceToggle = (choiceValue: string) => {
+    const currentSelection = Array.isArray(value) ? value : [];
+    const isSelected = currentSelection.includes(choiceValue);
+    
+    if (isSelected) {
+      // Remove from selection
+      const newSelection = currentSelection.filter(v => v !== choiceValue);
+      onChange(newSelection);
+    } else {
+      // Add to selection
+      const newSelection = [...currentSelection, choiceValue];
+      onChange(newSelection);
+    }
+  };
+  
+  // Checkmark component
+  const CheckmarkIcon = () => (
+    <View style={styles.checkmarkContainer}>
+      <View style={[styles.checkmarkLine, styles.checkmarkShort]} />
+      <View style={[styles.checkmarkLine, styles.checkmarkLong]} />
+    </View>
+  );
   
   return (
     <View style={styles.container}>
       {choices.map((choice: QuestionChoice) => {
-        const isSelected = value === choice.value;
+        const currentSelection = Array.isArray(value) ? value : [];
+        const isSelected = currentSelection.includes(choice.value);
         return (
           <TouchableOpacity
             key={choice.id}
@@ -23,13 +47,13 @@ const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({ question, val
               styles.choiceButton,
               isSelected && styles.selectedChoice
             ]}
-            onPress={() => onChange(choice.value)}
+            onPress={() => handleChoiceToggle(choice.value)}
           >
             <View style={[
-              styles.radioCircle,
-              isSelected && styles.selectedRadio
+              styles.checkbox,
+              isSelected && styles.selectedCheckbox
             ]}>
-              {isSelected && <View style={styles.radioDot} />}
+              {isSelected && <CheckmarkIcon />}
             </View>
             <Text 
               variant="body" 
@@ -67,24 +91,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#EBF8FF',
     borderColor: '#0066CC',
   },
-  radioCircle: {
+  checkbox: {
     width: 24,
     height: 24,
-    borderRadius: 12,
+    borderRadius: 4,
     borderWidth: 2,
     borderColor: '#CBD5E0',
     marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  selectedRadio: {
+  selectedCheckbox: {
     borderColor: '#0066CC',
-  },
-  radioDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
     backgroundColor: '#0066CC',
+  },
+  checkmarkContainer: {
+    width: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmarkLine: {
+    backgroundColor: '#FFFFFF',
+    position: 'absolute',
+  },
+  checkmarkShort: {
+    width: 2,
+    height: 6,
+    transform: [{ rotate: '45deg' }],
+    left: 4,
+    top: 6,
+  },
+  checkmarkLong: {
+    width: 2,
+    height: 10,
+    transform: [{ rotate: '-45deg' }],
+    right: 2,
+    top: 2,
   },
   choiceText: {
     fontSize: 16,

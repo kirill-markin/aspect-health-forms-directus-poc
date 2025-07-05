@@ -141,9 +141,19 @@ export class BranchingEngine {
         return { matches: !isNaN(ltValue) && !isNaN(ltCompare) && ltValue < ltCompare };
       
       case 'is_empty':
+        // Handle arrays (multiple choice)
+        if (Array.isArray(compareValue)) {
+          return { matches: compareValue.length === 0 };
+        }
+        // Handle strings and other values
         return { matches: !compareValue || String(compareValue).trim() === '' };
       
       case 'is_not_empty':
+        // Handle arrays (multiple choice)
+        if (Array.isArray(compareValue)) {
+          return { matches: compareValue.length > 0 };
+        }
+        // Handle strings and other values
         return { matches: !!(compareValue && String(compareValue).trim() !== '') };
       
       default:
@@ -168,7 +178,24 @@ export class BranchingEngine {
 
   // Get all questions that have been answered
   getAnsweredQuestions(): string[] {
-    return Array.from(this.answers.keys());
+    const answeredQuestions: string[] = [];
+    
+    for (const [questionUid, value] of this.answers.entries()) {
+      // Check if the question is actually answered (not empty)
+      if (Array.isArray(value)) {
+        // For arrays (multiple choice), must have at least one selection
+        if (value.length > 0) {
+          answeredQuestions.push(questionUid);
+        }
+      } else {
+        // For other types, check if value is not empty
+        if (value !== null && value !== undefined && String(value).trim() !== '') {
+          answeredQuestions.push(questionUid);
+        }
+      }
+    }
+    
+    return answeredQuestions;
   }
 
   // Check if form is complete
